@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Verify Certificate - Legal Metrology</title>
+  <meta name="theme-color" content="#0D1526">
+  <link rel="icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/app.css">
+  <script src="/js/i18n.js"></script>
+</head>
+<body>
+<nav class="navbar app-nav">
+  <div class="container">
+    <a class="navbar-brand" href="/index.html"><span class="brand-mark"><i class="bi bi-shield-check"></i></span>
+      <span>Certificate Verification<span class="brand-sub">Legal Metrology Department</span></span></a>
+    <div id="langPicker"></div>
+  </div>
+</nav>
+
+<main class="container py-4">
+  <div class="verify-wrap">
+    <div id="result" class="mb-4"></div>
+
+    <div class="card fade-up" style="--i:2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <span class="ibub navy"><i class="bi bi-search"></i></span>
+          <div>
+            <h2 class="section-title">Check a certificate number</h2>
+            <div class="small text-muted">Printed on the certificate, for example LM-2026-AB12CD34</div>
+          </div>
+        </div>
+        <form id="searchForm" class="d-flex gap-2">
+          <label class="visually-hidden" for="certInput">Certificate number</label>
+          <input id="certInput" class="form-control form-control-lg" placeholder="LM-2026-..." required
+                 autocapitalize="characters" spellcheck="false">
+          <button class="btn btn-lm px-4" type="submit">Verify</button>
+        </form>
+        <div class="d-flex gap-2 mt-3 small text-muted">
+          <i class="bi bi-qr-code-scan"></i>
+          <span>Scanning the QR on the instrument also checks the department's digital signature, proving the QR was not forged. No login or app needed.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="/js/api.js"></script>
+<script>
+  I18N.picker(document.getElementById('langPicker'));
+  const resultBox = document.getElementById('result');
+  const TITLES = { VALID: 'Valid certificate', EXPIRED: 'Certificate expired', REVOKED: 'Certificate revoked', FAKE: 'Not genuine', UNKNOWN: 'Could not check right now' };
+  // Messages are chosen from the verdict / reason code so they can be shown in any language.
+  const MESSAGES = {
+    VALID: 'Genuine certificate. This instrument is verified and within its validity period.',
+    EXPIRED: 'This certificate is genuine but no longer valid. The instrument must be re-verified.',
+    REVOKED: 'This certificate was revoked.',
+    NOT_FOUND: 'No certificate with this number exists in the Legal Metrology records.',
+    BAD_RECORD: 'Certificate record failed its digital signature check.',
+    BAD_QR: 'The QR code signature does not match. This QR code is forged or altered.',
+  };
+
+  // Animated marks: circle draws, then the symbol.
+  const MARKS = {
+    VALID: '<path class="p" d="M30 50 L44 64 L70 36" />',
+    FAKE: '<path class="p" d="M36 36 L64 64 M64 36 L36 64" />',
+    REVOKED: '<path class="p" d="M36 36 L64 64 M64 36 L36 64" />',
+    EXPIRED: '<path class="p" d="M50 30 L50 56 M50 66 L50 68" />',
+    UNKNOWN: '<path class="p" d="M40 40 a10 10 0 1 1 14 9 c-3 1-4 3-4 6 M50 66 L50 68" />',
+  };
+
+  function mark(verdict) {
+    return `<div class="vmark" aria-hidden="true"><svg viewBox="0 0 100 100" fill="none" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+      <circle class="c" cx="50" cy="50" r="44" stroke-opacity=".9"/>${MARKS[verdict] || MARKS.UNKNOWN}</svg></div>`;
+  }
+
+  function row(label, value, i, translateValue = false) {
+    return value ? `<div class="detail-row" style="--i:${i}"><span class="k">${esc(t(label))}</span>
+      <span class="v" ${translateValue ? '' : 'data-no-i18n'}>${esc(value)}</span></div>` : '';
+  }
+
+  function render(r) {
+    let i = 0;
+    const details = r.verdict === 'FAKE' ? `
+      <div class="card mt-3 fade-up" style="--i:4"><div class="card-body small">
+        <strong><i class="bi bi-exclamation-octagon text-danger"></i> Do not trust this instrument's certificate.</strong>
+        <span>Ask the trader for the original certificate, or report it to the Legal Metrology helpline.</span>
+      </div></div>` : `
+      <div class="card mt-3 overflow-hidden">
+        ${row('Certificate No.', r.certNo, i++)}
+        ${row('Instrument', r.instrumentType, i++, true)}
+        ${row('Serial No.', r.serialNo, i++)}
+        ${row('Make / Model', [r.make, r.model].filter(Boolean).join(' / '), i++)}
+        ${row('Business', r.businessName, i++)}
+        ${row('Location', [r.district, r.state].filter(Boolean).join(', '), i++)}
+        ${row('Issued on', fmtDate(r.issuedAt), i++)}
+        ${row('Valid until', fmtDate(r.validUntil), i++)}
+      </div>`;
+    // REVOKED keeps the server text because it carries the reason ("This certificate was revoked: ...").
+    const msg = r.verdict === 'FAKE' ? MESSAGES[r.reason] || r.message
+      : r.verdict === 'REVOKED' ? r.message : MESSAGES[r.verdict] || r.message;
+    resultBox.innerHTML = `
+      <div class="verdict-card ${esc(r.verdict)}" role="status" aria-live="polite">
+        ${mark(r.verdict)}
+        <h1>${esc(t(TITLES[r.verdict] || r.verdict))}</h1>
+        <div class="msg">${esc(t(msg))}</div>
+        ${r.signatureChecked ? `<div class="sig"><i class="bi bi-patch-check-fill"></i> ${esc(t('Digital signature verified'))}</div>` : ''}
+      </div>
+      ${details}
+      <p class="small text-muted text-center mt-2"><i class="bi bi-clock"></i> ${esc(t('Checked against live Legal Metrology records · {time}', { time: fmtDateTime(new Date().toISOString()) }))}</p>`;
+  }
+
+  async function verify(certNo, sig) {
+    resultBox.innerHTML = `<div class="card checking"><i class="bi bi-shield-shaded"></i><div class="mt-2 fw-semibold">${esc(t('Checking with Legal Metrology records...'))}</div></div>`;
+    const qs = 'c=' + encodeURIComponent(certNo) + (sig ? '&s=' + encodeURIComponent(sig) : '');
+    try {
+      const res = await fetch('/api/public/verify?' + qs);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      render(await res.json());
+    } catch (e) {
+      // A network or server problem must never be shown as "invalid certificate".
+      resultBox.innerHTML = `
+        <div class="verdict-card UNKNOWN" role="status">
+          ${mark('UNKNOWN')}
+          <h1>${esc(t(TITLES.UNKNOWN))}</h1>
+          <div class="msg">${esc(t('The verification server could not be reached. This does not mean the certificate is fake. Check your internet connection and try again.'))}</div>
+        </div>`;
+    }
+  }
+
+  I18N.ready.then(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('c')) {
+      document.getElementById('certInput').value = params.get('c');
+      verify(params.get('c'), params.get('s'));
+    } else {
+      resultBox.innerHTML = `<div class="card p-4 text-center fade-up">
+        <span class="ibub lg navy mx-auto mb-2"><i class="bi bi-qr-code-scan"></i></span>
+        <h1 class="h4 fw-bold mb-1">Is this scale certified?</h1>
+        <p class="text-muted mb-0">Scan the QR sticker on any weighing scale or fuel pump with your phone camera, or type the certificate number below.</p>
+      </div>`;
+    }
+  });
+
+  document.getElementById('searchForm').addEventListener('submit', ev => {
+    ev.preventDefault();
+    const c = document.getElementById('certInput').value.trim().toUpperCase();
+    history.replaceState(null, '', '/verify.html?c=' + encodeURIComponent(c));
+    verify(c, null);
+  });
+</script>
+</body>
+</html>

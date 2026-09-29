@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login - LM Verify</title>
+  <meta name="theme-color" content="#0D1526">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="stylesheet" href="/css/landing.css">
+  <script src="/js/i18n.js"></script>
+</head>
+<body class="auth-page">
+
+<div class="auth-grid">
+  <!-- Brand side -->
+  <aside class="auth-brand">
+    <a class="auth-home" href="/index.html"><i class="bi bi-arrow-left"></i> <span>Back to home</span></a>
+    <div class="auth-brand-inner fade-up">
+      <span class="brand-mark lg"><i class="bi bi-shield-check"></i></span>
+      <h1 class="mt-4">Every scale honest.<br><span class="accent">Every certificate provable.</span></h1>
+      <ul class="auth-points">
+        <li><i class="bi bi-wifi-off"></i><span>Works offline in the field</span></li>
+        <li><i class="bi bi-calculator"></i><span>Automatic pass / fail</span></li>
+        <li><i class="bi bi-qr-code"></i><span>Tamper-proof signed QR</span></li>
+        <li><i class="bi bi-translate"></i><span>8 Indian languages</span></li>
+      </ul>
+    </div>
+    <div class="auth-foot small">SIH26036 prototype · Legal Metrology Act, 2009</div>
+  </aside>
+
+  <!-- Form side -->
+  <main class="auth-main">
+    <div class="auth-top">
+      <a class="navbar-brand d-flex align-items-center gap-2 d-lg-none" href="/index.html">
+        <span class="brand-mark"><i class="bi bi-shield-check"></i></span><span class="fw-bold">LM Verify</span></a>
+      <div class="ms-auto" id="langPicker"></div>
+    </div>
+
+    <div class="auth-card fade-up" style="--i:1">
+      <h2 class="h3 fw-bold mb-1">Welcome</h2>
+      <p class="text-muted mb-4">Sign in to continue</p>
+
+      <ul class="nav seg-tabs mb-4" role="tablist">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-login" type="button"><i class="bi bi-box-arrow-in-right"></i>Login</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-register" type="button" id="registerTab"><i class="bi bi-person-plus"></i>Register as owner</button></li>
+      </ul>
+
+      <div class="tab-content">
+        <div class="tab-pane fade show active" id="tab-login">
+          <form id="loginForm">
+            <div class="mb-3">
+              <label class="form-label" for="loginEmail">Email</label>
+              <input class="form-control form-control-lg" id="loginEmail" name="email" type="email" required autocomplete="username" placeholder="you@example.com">
+            </div>
+            <div class="mb-4">
+              <label class="form-label" for="loginPassword">Password</label>
+              <div class="input-group input-group-lg">
+                <input class="form-control" id="loginPassword" name="password" type="password" required autocomplete="current-password">
+                <button class="btn btn-soft" type="button" id="togglePw" aria-label="Show password"><i class="bi bi-eye"></i></button>
+              </div>
+            </div>
+            <button class="btn btn-lm btn-lg w-100" type="submit">Login <i class="bi bi-arrow-right ms-1"></i></button>
+          </form>
+
+          <div class="auth-divider"><span>Try a demo account</span></div>
+          <div class="row g-2" id="demoAccounts"></div>
+        </div>
+
+        <div class="tab-pane fade" id="tab-register">
+          <form id="registerForm">
+            <div class="mb-3">
+              <label class="form-label" for="regName">Full name</label>
+              <input class="form-control form-control-lg" id="regName" name="name" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="regEmail">Email</label>
+              <input class="form-control form-control-lg" id="regEmail" name="email" type="email" required autocomplete="username">
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="regPhone">Mobile (optional)</label>
+              <input class="form-control form-control-lg" id="regPhone" name="phone" inputmode="tel" placeholder="98xxxxxxxx">
+            </div>
+            <div class="mb-4">
+              <label class="form-label" for="regPassword">Password</label>
+              <input class="form-control form-control-lg" id="regPassword" name="password" type="password" minlength="8" required autocomplete="new-password" placeholder="At least 8 characters">
+            </div>
+            <button class="btn btn-lm btn-lg w-100" type="submit">Create owner account</button>
+            <p class="small text-muted mt-3 mb-0"><i class="bi bi-info-circle"></i> Officers and GATCs are added by the state Controller.</p>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <a class="auth-verify fade-up" style="--i:2" href="/verify.html"><i class="bi bi-qr-code-scan"></i> <span>Verify a certificate</span> <i class="bi bi-arrow-right"></i></a>
+  </main>
+</div>
+
+<script src="/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="/js/api.js"></script>
+<script>
+  registerServiceWorker();
+  I18N.picker(document.getElementById('langPicker'));
+
+  const existing = API.user();
+  if (existing && API.token()) location.href = homeFor(existing.role);
+
+  // Open "Register" directly when coming from /login.html#register.
+  if (location.hash === '#register') bootstrap.Tab.getOrCreateInstance(document.getElementById('registerTab')).show();
+
+  // Demo logins; matches DataSeeder. Remove for production.
+  const DEMO = [
+    ['Owner', 'owner@lm.demo', 'bi-shop'], ['LMO Chennai', 'lmo.chennai@lm.demo', 'bi-person-badge'],
+    ['GATC Chennai', 'gatc.chennai@lm.demo', 'bi-building-check'], ['State admin', 'admin@lm.demo', 'bi-bank'],
+  ];
+  const demoBox = document.getElementById('demoAccounts');
+  demoBox.innerHTML = DEMO.map(([label, email, icon]) => `
+    <div class="col-6"><button type="button" class="role-chip" data-email="${email}">
+      <span class="ibub sm navy"><i class="bi ${icon}"></i></span>${label}</button></div>`).join('');
+  demoBox.addEventListener('click', ev => {
+    const chip = ev.target.closest('.role-chip');
+    if (!chip) return;
+    demoBox.querySelectorAll('.role-chip').forEach(c => c.classList.toggle('active', c === chip));
+    document.getElementById('loginEmail').value = chip.dataset.email;
+    document.getElementById('loginPassword').value = 'Demo@123';
+  });
+
+  document.getElementById('togglePw').onclick = ev => {
+    const pw = document.getElementById('loginPassword');
+    const show = pw.type === 'password';
+    pw.type = show ? 'text' : 'password';
+    ev.currentTarget.innerHTML = `<i class="bi ${show ? 'bi-eye-slash' : 'bi-eye'}"></i>`;
+  };
+
+  onSubmit(document.getElementById('loginForm'), async fd => {
+    const res = await API.call('/api/auth/login', { method: 'POST', body: Object.fromEntries(fd), redirectOn401: false });
+    API.save(res);
+    location.href = homeFor(res.user.role);
+  });
+
+  onSubmit(document.getElementById('registerForm'), async fd => {
+    const res = await API.call('/api/auth/register', { method: 'POST', body: Object.fromEntries(fd) });
+    API.save(res);
+    location.href = homeFor(res.user.role);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Field Inspection - LM Verify</title>
+  <meta name="theme-color" content="#0D1526">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="stylesheet" href="/css/wizard.css">
+  <script src="/js/i18n.js"></script>
+</head>
+<body>
+<nav class="navbar app-nav sticky-top" style="height:64px">
+  <div class="container" style="max-width:860px">
+    <span class="navbar-brand"><span class="brand-mark"><i class="bi bi-clipboard-check"></i></span>
+      <span>Field Inspection<span class="brand-sub" id="whoami" data-no-i18n></span></span></span>
+    <div class="d-flex align-items-center gap-2">
+      <span class="conn" id="connBadge"><span class="d"></span><span class="t">Online</span></span>
+      <div id="langPicker"></div>
+      <button class="icon-btn d-none" id="installBtn" type="button" aria-label="Install app" title="Install app"><i class="bi bi-download"></i></button>
+      <button class="icon-btn" id="logoutBtn" type="button" aria-label="Logout" title="Logout"><i class="bi bi-box-arrow-right"></i></button>
+    </div>
+  </div>
+</nav>
+<div class="offline-bar" id="offlineBar"><i class="bi bi-wifi-off me-1"></i> You are offline. Keep working; inspections are saved on this phone.</div>
+
+<main class="container py-3" style="max-width:860px">
+
+  <!-- Re-login prompt when the token expired while offline; local data is kept. -->
+  <div class="card border-warning mb-3 d-none fade-up" id="reloginBox">
+    <div class="card-body">
+      <div class="d-flex gap-2 mb-2"><i class="bi bi-lock text-warning fs-5"></i>
+        <div><strong>Session expired.</strong> Your saved inspections are safe on this phone. Log in again to sync them.</div></div>
+      <form class="row g-2" id="reloginForm">
+        <div class="col-sm-5"><input class="form-control" name="email" type="email" placeholder="Email" required aria-label="Email"></div>
+        <div class="col-sm-4"><input class="form-control" name="password" type="password" placeholder="Password" required aria-label="Password"></div>
+        <div class="col-sm-3"><button class="btn btn-lm w-100" type="submit">Log in &amp; sync</button></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= Assignment list ================= -->
+  <div id="listView">
+    <div class="card today-card mb-3 fade-up">
+      <span class="ring-bg"></span>
+      <div class="card-body p-4 position-relative">
+        <div class="small-caps" style="color:var(--muted)" id="todayDate"></div>
+        <div class="d-flex align-items-end gap-3 mt-1">
+          <div class="big" id="openCount">0</div>
+          <div class="pb-1" id="openLabel">inspections on this phone</div>
+        </div>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          <button class="btn btn-gold btn-sm" id="downloadBtn" type="button"><i class="bi bi-cloud-download me-1"></i> Download assignments</button>
+          <span class="small align-self-center" style="color:var(--muted)" id="downloadedAt"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-3 d-none fade-up" id="pendingCard" style="border-color:rgba(231,169,76,.35)">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center gap-2">
+          <div class="d-flex gap-3 align-items-center">
+            <span class="ibub warn"><i class="bi bi-cloud-arrow-up" id="syncIcon"></i></span>
+            <div><div class="fw-bold">Waiting to sync</div><div class="small text-muted" id="pendingInfo"></div></div>
+          </div>
+          <button class="btn btn-lm btn-sm" id="syncBtn" type="button"><i class="bi bi-arrow-repeat me-1"></i> Sync now</button>
+        </div>
+        <div class="mt-3 d-flex flex-column gap-2" id="pendingList"></div>
+      </div>
+    </div>
+
+    <h2 class="section-title mb-2 mt-4">My assignments</h2>
+    <div class="d-flex flex-column gap-2 mb-4" id="assignmentList"></div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="card-title-row">
+          <h2><i class="bi bi-clock-history me-2"></i>Recent inspections</h2>
+          <button class="btn btn-sm btn-soft" id="historyBtn" type="button"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+        </div>
+        <div id="historyList" class="d-flex flex-column gap-2"><div class="small text-muted">Tap refresh when online.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= Inspection wizard ================= -->
+  <div id="inspectView" class="d-none">
+    <button class="btn btn-link px-0 mb-2 text-decoration-none fw-semibold" id="backBtn" type="button"><i class="bi bi-arrow-left"></i> Assignments</button>
+    <div class="card mb-3 fade-up" id="inspectHeader"></div>
+
+    <div class="insp-steps"><div class="wz-steps" id="inspSteps"></div></div>
+
+    <div id="inspPanels">
+      <!-- 1. Arrive -->
+      <section class="wz-panel" data-step="0">
+        <div class="card mb-3"><div class="card-body">
+          <div class="card-title-row">
+            <h2><i class="bi bi-geo-alt me-2"></i>Confirm you are at the premises</h2>
+            <button class="btn btn-sm btn-soft" id="gpsBtn" type="button"><i class="bi bi-crosshair"></i> Capture again</button>
+          </div>
+          <div class="d-flex gap-2 align-items-start small" id="gpsInfo"></div>
+        </div></div>
+        <div class="card mb-3"><div class="card-body">
+          <div class="card-title-row"><h2><i class="bi bi-card-checklist me-2"></i>Check the instrument</h2></div>
+          <p class="small text-muted">Match these with the name plate before testing.</p>
+          <div class="row g-2 small" id="plateInfo"></div>
+        </div></div>
+        <div class="card mb-3"><div class="card-body">
+          <div class="card-title-row"><h2><i class="bi bi-folder2-open me-2"></i>Owner's documents</h2></div>
+          <div class="d-flex flex-column gap-2" id="ownerDocs"></div>
+        </div></div>
+      </section>
+
+      <!-- 2. Readings -->
+      <section class="wz-panel" data-step="1">
+        <div class="card mb-3"><div class="card-body">
+          <div class="card-title-row">
+            <h2><i class="bi bi-rulers me-2"></i>Test readings</h2>
+            <span class="small text-muted text-end" id="ruleInfo"></span>
+          </div>
+          <p class="small text-muted mb-2">Place each test load and type what the instrument shows. Pass/fail is calculated for you.</p>
+          <div id="readingRows"></div>
+          <button class="btn btn-sm btn-soft mb-3" id="addRowBtn" type="button"><i class="bi bi-plus-lg"></i> Add reading</button>
+          <div class="verdict-live idle" id="verdictBox" aria-live="polite"></div>
+        </div></div>
+      </section>
+
+      <!-- 3. Evidence -->
+      <section class="wz-panel" data-step="2">
+        <div class="card mb-3"><div class="card-body">
+          <div class="card-title-row"><h2><i class="bi bi-camera me-2"></i>Photos</h2><span class="small text-muted" id="photoCount">0 / 6</span></div>
+          <p class="small text-muted">Take a photo of the instrument, its name plate and the seal.</p>
+          <div class="d-flex flex-wrap gap-2" id="photoThumbs">
+            <label class="photo-add" for="photoInput"><i class="bi bi-camera"></i>Add photo</label>
+          </div>
+          <input class="d-none" type="file" id="photoInput" accept="image/*" capture="environment" multiple>
+        </div></div>
+        <div class="card mb-3"><div class="card-body">
+          <label class="card-title-row mb-2" for="remarks"><h2 class="mb-0"><i class="bi bi-chat-left-text me-2"></i>Remarks</h2></label>
+          <textarea class="form-control" id="remarks" rows="3" maxlength="1000" placeholder="Seal number, observations..."></textarea>
+        </div></div>
+      </section>
+
+      <!-- 4. Review -->
+      <section class="wz-panel" data-step="3">
+        <div id="reviewVerdict" class="mb-3"></div>
+        <div class="card mb-3"><div class="card-body">
+          <div class="card-title-row"><h2><i class="bi bi-list-check me-2"></i>Checklist</h2></div>
+          <ul class="check-list" id="reviewChecks"></ul>
+        </div></div>
+        <div class="card mb-3"><div class="card-body">
+          <div class="card-title-row"><h2><i class="bi bi-table me-2"></i>Readings</h2></div>
+          <div class="table-responsive"><table class="table table-sm mb-0">
+            <thead><tr><th>Test load</th><th>Indicated</th><th>Error</th><th>Limit ±</th><th></th></tr></thead>
+            <tbody id="reviewReadings"></tbody>
+          </table></div>
+        </div></div>
+      </section>
+
+      <!-- 5. Result -->
+      <section class="wz-panel" data-step="4">
+        <div class="card"><div class="card-body text-center py-5 position-relative overflow-hidden" id="resultBox"></div></div>
+      </section>
+    </div>
+
+    <div class="save-bar" id="inspFoot">
+      <div class="d-flex gap-2">
+        <button class="btn btn-soft btn-lg" id="inspBack" type="button" aria-label="Back"><i class="bi bi-arrow-left"></i></button>
+        <button class="btn btn-lm btn-lg flex-grow-1 py-3" id="inspNext" type="button">Continue</button>
+      </div>
+      <div class="small text-muted text-center mt-2" id="inspHint"></div>
+    </div>
+  </div>
+</main>
+
+<script src="/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/idb.js"></script>
+<script src="/js/errorcalc.js"></script>
+<script src="/js/wizard.js"></script>
+<script src="/js/officer.js"></script>
+</body>
+</html>

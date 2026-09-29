@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Controller Dashboard - LM Verify</title>
+  <meta name="theme-color" content="#0D1526">
+  <link rel="icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<nav class="navbar app-nav sticky-top" style="height:64px;z-index:1030">
+  <div class="container-fluid px-3 px-lg-4">
+    <span class="navbar-brand"><span class="brand-mark"><i class="bi bi-bank"></i></span>
+      <span>Controller Dashboard<span class="brand-sub" id="stateName"></span></span></span>
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-sm btn-gold d-none d-md-inline-flex align-items-center gap-1" id="runExpiry" type="button" title="Normally runs daily at 02:00">
+        <i class="bi bi-lightning-charge"></i> Run expiry job</button>
+      <div class="dropdown">
+        <button class="btn p-0 border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Account"><span class="avatar" id="avatar"></span></button>
+        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+          <li><span class="dropdown-item-text small" id="whoami"></span></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><button class="dropdown-item text-danger" id="logoutBtn" type="button"><i class="bi bi-box-arrow-right me-2"></i>Logout</button></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="admin-wrap">
+  <aside class="side nav" role="tablist" aria-label="Sections">
+    <div class="small-caps px-2 mb-2 side-title">Monitor</div>
+    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#t-dash" type="button" role="tab"><i class="bi bi-grid-1x2"></i>Dashboard</button>
+    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#t-apps" type="button" role="tab"><i class="bi bi-list-check"></i>Applications <span class="count d-none" id="subCount"></span></button>
+    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#t-fraud" type="button" role="tab"><i class="bi bi-flag"></i>Fraud flags <span class="count d-none" id="fraudCount"></span></button>
+    <div class="small-caps px-2 mb-2 mt-3 side-title">Manage</div>
+    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#t-officers" type="button" role="tab"><i class="bi bi-people"></i>Officers</button>
+    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#t-search" type="button" role="tab"><i class="bi bi-search"></i>Search &amp; export</button>
+    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#t-rules" type="button" role="tab"><i class="bi bi-sliders"></i>Instrument rules</button>
+    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#t-audit" type="button" role="tab" id="auditTab"><i class="bi bi-journal-text"></i>Audit log</button>
+  </aside>
+
+  <main class="admin-main tab-content">
+    <!-- Dashboard -->
+    <section class="tab-pane fade show active" id="t-dash">
+      <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
+        <div><div class="small-caps" id="today"></div><h1 class="h3 fw-bold mb-0">State overview</h1></div>
+        <button class="btn btn-sm btn-gold d-md-none" id="runExpiry2" type="button"><i class="bi bi-lightning-charge"></i> Run expiry job</button>
+      </div>
+      <div class="row g-3 mb-3" id="kpis"></div>
+      <div class="row g-3">
+        <div class="col-xl-7">
+          <div class="card h-100"><div class="card-body">
+            <div class="card-title-row flex-wrap">
+              <h2><i class="bi bi-geo-alt me-2"></i>District-wise status</h2>
+              <div class="d-flex align-items-center gap-3">
+                <div class="chart-legend">
+                  <span><span class="sw" style="background:var(--chart-valid)"></span>Valid</span>
+                  <span><span class="sw" style="background:var(--chart-soon)"></span>Due soon</span>
+                  <span><span class="sw" style="background:var(--chart-pending)"></span>Pending</span>
+                  <span><span class="sw" style="background:var(--chart-expired)"></span>Expired</span>
+                </div>
+                <button class="btn btn-sm btn-soft" id="tableToggle" type="button" aria-pressed="false"><i class="bi bi-table"></i> Table</button>
+              </div>
+            </div>
+            <div id="districtChart"></div>
+            <div class="table-responsive d-none" id="districtTable">
+              <table class="table table-sm">
+                <thead><tr><th>District</th><th class="text-end">Instruments</th><th class="text-end">Pending</th><th class="text-end">Valid</th><th class="text-end">Due soon</th><th class="text-end">Expired</th></tr></thead>
+                <tbody id="districtRows"></tbody>
+              </table>
+            </div>
+          </div></div>
+        </div>
+        <div class="col-xl-5">
+          <div class="card h-100"><div class="card-body">
+            <div class="card-title-row"><h2><i class="bi bi-funnel me-2"></i>Applications by stage</h2></div>
+            <div id="stageChart"></div>
+          </div></div>
+        </div>
+        <div class="col-12">
+          <div class="card"><div class="card-body">
+            <div class="card-title-row"><h2><i class="bi bi-people me-2"></i>Officer workload <span class="small text-muted fw-normal">last 30 days</span></h2></div>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead><tr><th>Officer</th><th>District</th><th class="text-end">Open jobs</th><th class="text-end">Inspections</th><th style="width:28%">Pass rate</th></tr></thead>
+                <tbody id="workloadRows"></tbody>
+              </table>
+            </div>
+          </div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Applications -->
+    <section class="tab-pane fade" id="t-apps">
+      <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
+        <h1 class="h3 fw-bold mb-0">Applications</h1>
+        <div class="d-flex gap-2 align-items-center">
+          <label class="small fw-semibold" for="statusFilter">Status</label>
+          <select class="form-select form-select-sm" style="width:200px" id="statusFilter"><option value="">All</option></select>
+        </div>
+      </div>
+      <div class="card"><div class="table-responsive">
+        <table class="table table-hover">
+          <thead><tr><th>#</th><th>Instrument</th><th>Business / owner</th><th>District</th><th>Status</th><th>Officer</th><th>Scheduled</th><th></th></tr></thead>
+          <tbody id="appRows"></tbody>
+        </table>
+      </div></div>
+    </section>
+
+    <!-- Fraud flags -->
+    <section class="tab-pane fade" id="t-fraud">
+      <h1 class="h3 fw-bold mb-1">Fraud &amp; anomaly flags</h1>
+      <p class="small text-muted mb-3"><i class="bi bi-info-circle"></i> Automatic checks on officer activity. Flags are for review only; nobody is penalised automatically. Thresholds are configurable, not legal limits.</p>
+      <div class="row g-3" id="fraudCards"></div>
+    </section>
+
+    <!-- Officers -->
+    <section class="tab-pane fade" id="t-officers">
+      <h1 class="h3 fw-bold mb-3">Officers &amp; test centres</h1>
+      <div class="row g-3">
+        <div class="col-xl-7"><div class="card"><div class="table-responsive">
+          <table class="table table-hover">
+            <thead><tr><th>Name</th><th>Role</th><th>District</th><th class="text-end">Open</th><th class="text-end">Done (30d)</th></tr></thead>
+            <tbody id="officerRows"></tbody>
+          </table>
+        </div></div></div>
+        <div class="col-xl-5"><div class="card"><div class="card-body">
+          <div class="card-title-row"><h2><i class="bi bi-person-plus me-2"></i>Add LMO or GATC</h2></div>
+          <form id="officerForm" class="row g-2">
+            <div class="col-12"><label class="form-label" for="oRole">Role</label>
+              <select class="form-select" id="oRole" name="role"><option value="LMO">Legal Metrology Officer (LMO)</option><option value="GATC">Govt. Approved Test Centre (GATC)</option></select></div>
+            <div class="col-md-6"><label class="form-label" for="oName">Name</label><input class="form-control" id="oName" name="name" required></div>
+            <div class="col-md-6"><label class="form-label" for="oDistrict">District</label><select class="form-select" id="oDistrict" name="jurisdictionId" required></select></div>
+            <div class="col-md-6"><label class="form-label" for="oEmail">Email</label><input class="form-control" id="oEmail" name="email" type="email" required></div>
+            <div class="col-md-6"><label class="form-label" for="oPhone">Phone</label><input class="form-control" id="oPhone" name="phone"></div>
+            <div class="col-12"><label class="form-label" for="oPassword">Initial password</label><input class="form-control" id="oPassword" name="password" type="password" minlength="8" required autocomplete="new-password"></div>
+            <div class="col-12 gatc-only d-none"><label class="form-label" for="oGatcName">Test centre name</label><input class="form-control" id="oGatcName" name="gatcName"></div>
+            <div class="col-12 gatc-only d-none"><div class="form-label">Authorised instrument categories</div><div id="oTypes" class="d-flex flex-column gap-1"></div></div>
+            <div class="col-12 mt-3"><button class="btn btn-lm w-100" type="submit">Create account</button></div>
+          </form>
+        </div></div></div>
+      </div>
+    </section>
+
+    <!-- Search -->
+    <section class="tab-pane fade" id="t-search">
+      <h1 class="h3 fw-bold mb-3">Search &amp; export</h1>
+      <form id="searchForm" class="d-flex flex-wrap gap-2 mb-3">
+        <div class="input-group" style="max-width:560px">
+          <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+          <label class="visually-hidden" for="q">Search</label>
+          <input class="form-control" id="q" name="q" placeholder="Serial no., certificate no., owner, business or district">
+          <button class="btn btn-lm" type="submit">Search</button>
+        </div>
+        <button class="btn btn-soft" type="button" id="exportBtn"><i class="bi bi-file-earmark-spreadsheet me-1"></i> Export Excel (CSV)</button>
+      </form>
+      <div class="card"><div class="table-responsive">
+        <table class="table table-hover">
+          <thead><tr><th>Serial No.</th><th>Instrument</th><th>Business / owner</th><th>District</th><th>Application</th><th>Certificate</th><th>Valid until</th><th></th></tr></thead>
+          <tbody id="searchRows"></tbody>
+        </table>
+      </div></div>
+    </section>
+
+    <!-- Rules -->
+    <section class="tab-pane fade" id="t-rules">
+      <h1 class="h3 fw-bold mb-1">Instrument rules</h1>
+      <p class="small text-muted mb-3"><i class="bi bi-info-circle"></i> Validity periods, fees and error limits change with amendments, so they are configurable here and every change is audit-logged. Demo values: verify against the Gazette before use.</p>
+      <div class="card"><div class="table-responsive">
+        <table class="table">
+          <thead><tr><th>Instrument type</th><th>Error model</th><th>Validity (months)</th><th>Fee (&#8377;)</th><th>MPE %</th><th></th></tr></thead>
+          <tbody id="typeRows"></tbody>
+        </table>
+      </div></div>
+    </section>
+
+    <!-- Audit -->
+    <section class="tab-pane fade" id="t-audit">
+      <h1 class="h3 fw-bold mb-1">Audit log</h1>
+      <p class="small text-muted mb-3"><i class="bi bi-lock"></i> Append-only. Every status change, assignment, override and revocation, with who did it and when.</p>
+      <div class="card"><div class="table-responsive">
+        <table class="table table-sm table-hover">
+          <thead><tr><th>When</th><th>Who</th><th>Entity</th><th>Action</th><th>From</th><th>To</th></tr></thead>
+          <tbody id="auditRows"></tbody>
+        </table>
+      </div></div>
+    </section>
+  </main>
+</div>
+
+<div class="chart-tip" id="chartTip" role="tooltip"></div>
+
+<!-- Assign / reassign modal -->
+<div class="modal fade" id="assignModal" tabindex="-1" aria-labelledby="assignTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"><form class="modal-content" id="assignForm">
+    <div class="modal-header"><h2 class="modal-title h5 fw-bold" id="assignTitle"><i class="bi bi-person-check me-2"></i>Assign officer</h2>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body">
+      <div class="small text-muted mb-3" id="assignInfo"></div>
+      <label class="form-label" for="assignOfficer">Eligible officers</label>
+      <select class="form-select mb-1" id="assignOfficer" name="officerId" required></select>
+      <div class="small text-muted mb-3"><i class="bi bi-shield-check"></i> Only officers allowed by jurisdiction and GATC category rules are listed.</div>
+      <label class="form-label" for="assignDate">Inspection date</label>
+      <input class="form-control" type="date" id="assignDate" name="scheduledDate" required>
+    </div>
+    <div class="modal-footer"><span class="small text-muted me-auto"><i class="bi bi-journal-text"></i> Recorded in the audit log</span>
+      <button class="btn btn-lm" type="submit">Save assignment</button></div>
+  </form></div>
+</div>
+
+<!-- Inspection detail modal -->
+<div class="modal fade" id="inspModal" tabindex="-1" aria-labelledby="inspTitle" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"><div class="modal-content">
+    <div class="modal-header"><h2 class="modal-title h5 fw-bold" id="inspTitle">Inspection</h2>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body" id="inspBody"></div>
+  </div></div>
+</div>
+
+<!-- Revoke modal -->
+<div class="modal fade" id="revokeModal" tabindex="-1" aria-labelledby="revokeTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"><form class="modal-content" id="revokeForm">
+    <div class="modal-header"><h2 class="modal-title h5 fw-bold text-danger" id="revokeTitle"><i class="bi bi-slash-circle me-2"></i>Revoke certificate</h2>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body">
+      <p class="mb-3">Revoke <strong id="revokeCert"></strong>? Anyone scanning its QR will immediately see <strong>Revoked</strong>, and the owner is notified.</p>
+      <label class="form-label" for="revokeReason">Reason</label>
+      <select class="form-select mb-2" id="revokeReasonPick" aria-label="Common reasons">
+        <option value="">Choose a common reason...</option>
+        <option>Seal found broken</option><option>Instrument dismantled and re-installed</option>
+        <option>Fraud confirmed after review</option><option>Instrument tampered</option>
+      </select>
+      <input class="form-control" id="revokeReason" name="reason" required placeholder="Reason">
+    </div>
+    <div class="modal-footer"><button class="btn btn-soft" type="button" data-bs-dismiss="modal">Cancel</button>
+      <button class="btn btn-danger" type="submit">Revoke</button></div>
+  </form></div>
+</div>
+
+<script src="/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/admin.js"></script>
+</body>
+</html>

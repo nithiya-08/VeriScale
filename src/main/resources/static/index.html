@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LM Verify - Legal Metrology Online Verification</title>
+  <meta name="theme-color" content="#0D1526">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="stylesheet" href="/css/landing.css">
+  <script src="/js/i18n.js"></script>
+</head>
+<body>
+
+<!-- ================= Top bar ================= -->
+<header class="lp-nav" id="lpNav">
+  <div class="container d-flex align-items-center gap-3">
+    <a class="d-flex align-items-center gap-2 text-decoration-none" href="/index.html">
+      <span class="brand-mark"><i class="bi bi-shield-check"></i></span>
+      <span class="lp-brand">LM Verify<span class="brand-sub">Legal Metrology · SIH26036 prototype</span></span>
+    </a>
+    <nav class="lp-links d-none d-lg-flex ms-4">
+      <a href="#how">How it works</a>
+      <a href="#who">Who it is for</a>
+      <a href="#features">Features</a>
+      <a href="/verify.html">Verify a certificate</a>
+    </nav>
+    <div class="ms-auto d-flex align-items-center gap-2">
+      <div id="langPicker"></div>
+      <a class="btn btn-lm px-4" href="/login.html" id="navLogin"><i class="bi bi-box-arrow-in-right me-1"></i> <span>Login</span></a>
+    </div>
+  </div>
+</header>
+
+<!-- ================= Hero ================= -->
+<section class="lp-hero">
+  <div class="lp-glow g1"></div><div class="lp-glow g2"></div>
+  <div class="container position-relative">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <span class="hero-chip fade-up"><i class="bi bi-award"></i> SIH26036 · Department of Consumer Affairs</span>
+        <h1 class="lp-title fade-up" style="--i:1">Every scale honest.<br><span class="accent">Every certificate provable.</span></h1>
+        <p class="lp-lead fade-up" style="--i:2">Apply online, get inspected by a Legal Metrology Officer or GATC, and receive a digitally signed certificate with a QR code that any customer can scan in one second.</p>
+        <div class="d-flex flex-wrap gap-3 fade-up" style="--i:3">
+          <a class="btn btn-lm btn-lg px-4 lp-cta" href="/login.html"><span>Get started</span> <i class="bi bi-arrow-right ms-1"></i></a>
+          <a class="btn btn-soft btn-lg px-4" href="/verify.html"><i class="bi bi-qr-code-scan me-2"></i><span>Verify a certificate</span></a>
+        </div>
+        <div class="lp-trust fade-up" style="--i:4">
+          <span><i class="bi bi-wifi-off"></i> Works offline in the field</span>
+          <span><i class="bi bi-shield-lock"></i> Tamper-proof signed QR</span>
+          <span><i class="bi bi-translate"></i> 8 Indian languages</span>
+        </div>
+      </div>
+
+      <!-- Phone mock-up -->
+      <div class="col-lg-6 d-flex justify-content-center">
+        <div class="lp-stage fade-up" style="--i:2" aria-hidden="true">
+          <div class="lp-phone">
+            <div class="lp-notch"></div>
+            <div class="lp-screen">
+              <div class="lp-verdict">
+                <svg viewBox="0 0 100 100" fill="none" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"><circle class="c" cx="50" cy="50" r="42"/><path class="p" d="M30 51 L44 65 L70 37"/></svg>
+                <div class="lp-v-title">Valid certificate</div>
+                <div class="lp-v-sub">Digital signature verified</div>
+              </div>
+              <div class="lp-rows">
+                <div><span>Instrument</span><b>Electronic weighing scale (Class III)</b></div>
+                <div><span>Serial No.</span><b data-no-i18n>ES-CH-1001</b></div>
+                <div><span>Valid until</span><b data-no-i18n>27 Sept 2027</b></div>
+              </div>
+              <div class="lp-qr">
+                <div class="lp-qr-grid"></div>
+                <div class="lp-scanline"></div>
+              </div>
+            </div>
+          </div>
+          <div class="lp-float f1"><i class="bi bi-check-circle-fill"></i> <span>PASS</span></div>
+          <div class="lp-float f2"><i class="bi bi-cloud-check"></i> <span>Saved on this phone</span></div>
+          <div class="lp-float f3"><i class="bi bi-geo-alt-fill"></i> <span>Location captured</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Stats ================= -->
+<section class="container">
+  <div class="lp-stats">
+    <div><b data-count="4">0</b><span>User roles</span></div>
+    <div><b data-count="8">0</b><span>Indian languages</span></div>
+    <div><b data-count="5">0</b><span>Steps from application to QR</span></div>
+    <div><b>100%</b><span>Works offline in the field</span></div>
+  </div>
+</section>
+
+<!-- ================= How it works ================= -->
+<section class="container lp-section" id="how">
+  <div class="lp-head reveal-on-scroll">
+    <div class="small-caps">How it works</div>
+    <h2>From application to trusted QR in five steps</h2>
+  </div>
+  <div class="lp-flow">
+    <div class="lp-step reveal-on-scroll"><span class="lp-num">1</span><i class="bi bi-file-earmark-text"></i><h3>Apply online</h3><p>Owner registers the instrument and applies from a phone.</p></div>
+    <div class="lp-step reveal-on-scroll"><span class="lp-num">2</span><i class="bi bi-diagram-3"></i><h3>Auto-assign</h3><p>Nearest eligible LMO / GATC by district, category and workload.</p></div>
+    <div class="lp-step reveal-on-scroll"><span class="lp-num">3</span><i class="bi bi-phone"></i><h3>Inspect offline</h3><p>Readings, GPS and photos, even with no network. Pass/fail is automatic.</p></div>
+    <div class="lp-step reveal-on-scroll"><span class="lp-num">4</span><i class="bi bi-qr-code"></i><h3>Signed certificate</h3><p>PDF + QR, digitally signed by the department.</p></div>
+    <div class="lp-step reveal-on-scroll"><span class="lp-num">5</span><i class="bi bi-bell"></i><h3>Never lapse</h3><p>Reminders before expiry, then re-verification.</p></div>
+  </div>
+</section>
+
+<!-- ================= Who it is for ================= -->
+<section class="container lp-section" id="who">
+  <div class="lp-head reveal-on-scroll">
+    <div class="small-caps">Who it is for</div>
+    <h2>Built for everyone in the process</h2>
+  </div>
+  <div class="row g-3">
+    <div class="col-md-6 col-xl-3"><div class="lp-role reveal-on-scroll">
+      <span class="ibub lg gold"><i class="bi bi-shop"></i></span><h3>Instrument owners</h3>
+      <p>Register shops and instruments, apply, upload documents and get the QR certificate on your phone.</p>
+      <a href="/login.html#register"><span>Register as owner</span> <i class="bi bi-arrow-right"></i></a></div></div>
+    <div class="col-md-6 col-xl-3"><div class="lp-role reveal-on-scroll">
+      <span class="ibub lg good"><i class="bi bi-clipboard-check"></i></span><h3>Field officers</h3>
+      <p>Offline inspections with GPS, photos and automatic pass/fail.</p>
+      <a href="/login.html"><span>Login</span> <i class="bi bi-arrow-right"></i></a></div></div>
+    <div class="col-md-6 col-xl-3"><div class="lp-role reveal-on-scroll">
+      <span class="ibub lg info"><i class="bi bi-bank"></i></span><h3>State Controller</h3>
+      <p>Pendency, district-wise status, fraud flags and audit log in one dashboard.</p>
+      <a href="/login.html"><span>Login</span> <i class="bi bi-arrow-right"></i></a></div></div>
+    <div class="col-md-6 col-xl-3"><div class="lp-role reveal-on-scroll">
+      <span class="ibub lg bad"><i class="bi bi-people"></i></span><h3>Customers</h3>
+      <p>Scan the QR on any scale or pump to check it in one second.</p>
+      <a href="/verify.html"><span>Verify a certificate</span> <i class="bi bi-arrow-right"></i></a></div></div>
+  </div>
+</section>
+
+<!-- ================= Features ================= -->
+<section class="container lp-section" id="features">
+  <div class="lp-head reveal-on-scroll">
+    <div class="small-caps">Features</div>
+    <h2>Why it is different</h2>
+  </div>
+  <div class="row g-3">
+    <div class="col-md-6 col-lg-4"><div class="card feature card-lift reveal-on-scroll"><span class="ibub good"><i class="bi bi-shield-lock"></i></span><h3>Tamper-proof QR</h3><p>ECDSA signature: a forged or edited QR is shown as fake instantly. No login needed to check.</p></div></div>
+    <div class="col-md-6 col-lg-4"><div class="card feature card-lift reveal-on-scroll"><span class="ibub info"><i class="bi bi-wifi-off"></i></span><h3>Offline-first field app</h3><p>Installable on any phone. Inspections are saved locally and sync automatically.</p></div></div>
+    <div class="col-md-6 col-lg-4"><div class="card feature card-lift reveal-on-scroll"><span class="ibub gold"><i class="bi bi-calculator"></i></span><h3>No manual maths</h3><p>The officer types readings; the permissible error and verdict are calculated for them.</p></div></div>
+    <div class="col-md-6 col-lg-4"><div class="card feature card-lift reveal-on-scroll"><span class="ibub bad"><i class="bi bi-flag"></i></span><h3>Fraud detection</h3><p>GPS far from shop, rushed inspections, reused photos and more are flagged for review.</p></div></div>
+    <div class="col-md-6 col-lg-4"><div class="card feature card-lift reveal-on-scroll"><span class="ibub navy"><i class="bi bi-bar-chart"></i></span><h3>State dashboard</h3><p>Pendency, district-wise status, officer workload, search and Excel export.</p></div></div>
+    <div class="col-md-6 col-lg-4"><div class="card feature card-lift reveal-on-scroll"><span class="ibub neutral"><i class="bi bi-journal-text"></i></span><h3>Complete audit trail</h3><p>Every approval and change records who did it and when. Nothing changes quietly.</p></div></div>
+  </div>
+</section>
+
+<!-- ================= Final call to action ================= -->
+<section class="container lp-section pb-5">
+  <div class="lp-final reveal-on-scroll">
+    <div>
+      <h2>Ready to get your instruments verified?</h2>
+      <p>It takes about two minutes to apply.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <a class="btn btn-lm btn-lg px-4" href="/login.html"><span>Get started</span> <i class="bi bi-arrow-right ms-1"></i></a>
+      <a class="btn btn-soft btn-lg px-4" href="/verify.html"><i class="bi bi-qr-code-scan me-2"></i><span>Verify a certificate</span></a>
+    </div>
+  </div>
+</section>
+
+<footer class="lp-footer">
+  <div class="container d-flex flex-wrap justify-content-between gap-2 small">
+    <span>SIH26036 prototype · Legal Metrology Act, 2009</span>
+    <a href="/verify.html" class="text-decoration-none"><i class="bi bi-qr-code-scan"></i> <span>Public certificate check</span></a>
+  </div>
+</footer>
+
+<script src="/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="/js/api.js"></script>
+<script>
+  registerServiceWorker();
+  I18N.picker(document.getElementById('langPicker'));
+
+  // Logged-in users see "Open my dashboard" instead of "Login".
+  const me = API.user();
+  if (me && API.token()) {
+    const b = document.getElementById('navLogin');
+    b.href = homeFor(me.role);
+    b.innerHTML = `<i class="bi bi-grid-1x2 me-1"></i> <span>${esc(t('Open my dashboard'))}</span>`;
+  }
+
+  // Top bar gets a solid background once the page scrolls.
+  const nav = document.getElementById('lpNav');
+  const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 10);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // Sections animate in as they scroll into view.
+  const io = 'IntersectionObserver' in window ? new IntersectionObserver(entries => entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+  }), { threshold: .15 }) : null;
+  document.querySelectorAll('.reveal-on-scroll').forEach((el, i) => {
+    el.style.setProperty('--d', (i % 6) * 80 + 'ms');
+    if (io && !REDUCED_MOTION) io.observe(el); else el.classList.add('in');
+  });
+
+  // Decorative QR in the phone mock-up: three finder squares plus a fixed pseudo-random pattern.
+  (() => {
+    const n = 21; let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+    const finder = (x, y) => `<rect x="${x}" y="${y}" width="7" height="7"/><rect x="${x + 1}" y="${y + 1}" width="5" height="5" fill="#fff"/><rect x="${x + 2}" y="${y + 2}" width="3" height="3"/>`;
+    const inFinder = (x, y) => (x < 8 && y < 8) || (x > 12 && y < 8) || (x < 8 && y > 12);
+    let cells = '';
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (!inFinder(x, y) && rnd() > .52) cells += `<rect x="${x}" y="${y}" width="1" height="1"/>`;
+    document.querySelector('.lp-qr-grid').innerHTML =
+      `<svg viewBox="0 0 ${n} ${n}" fill="#0D1526" shape-rendering="crispEdges">${finder(0, 0)}${finder(14, 0)}${finder(0, 14)}${cells}</svg>`;
+  })();
+
+  // Stat numbers count up.
+  I18N.ready.then(() => countUp(document.querySelector('.lp-stats')));
+</script>
+</body>
+</html>

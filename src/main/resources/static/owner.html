@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Instruments - LM Verify</title>
+  <meta name="theme-color" content="#0D1526">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="stylesheet" href="/css/wizard.css">
+  <script src="/js/i18n.js"></script>
+</head>
+<body>
+<nav class="navbar app-nav sticky-top" style="height:64px">
+  <div class="container">
+    <span class="navbar-brand"><span class="brand-mark"><i class="bi bi-shield-check"></i></span>
+      <span>LM Verify<span class="brand-sub">Instrument owner</span></span></span>
+    <div class="d-flex align-items-center gap-2">
+      <div id="langPicker"></div>
+      <div class="dropdown">
+        <button class="icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Alerts" id="bellBtn">
+          <i class="bi bi-bell"></i><span class="dot-count d-none" id="bellCount"></span>
+        </button>
+        <div class="dropdown-menu dropdown-menu-end p-0 shadow border-0" style="width:min(380px,92vw)">
+          <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+            <strong>Alerts</strong><span class="small text-muted" id="bellInfo"></span>
+          </div>
+          <div id="notificationList" style="max-height:420px;overflow:auto"></div>
+        </div>
+      </div>
+      <div class="dropdown">
+        <button class="btn p-0 border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Account">
+          <span class="avatar" id="avatar"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+          <li><span class="dropdown-item-text small" id="whoami" data-no-i18n></span></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="/verify.html"><i class="bi bi-qr-code-scan me-2"></i>Verify page</a></li>
+          <li><button class="dropdown-item text-danger" id="logoutBtn" type="button"><i class="bi bi-box-arrow-right me-2"></i>Logout</button></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="container py-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-3 fade-up">
+    <div>
+      <div class="small-caps" id="today"></div>
+      <h1 class="h3 fw-bold mb-0" id="greeting">Welcome</h1>
+    </div>
+    <button class="btn btn-lm big-cta" id="startWizard" type="button"><i class="bi bi-patch-check me-2"></i>Get an instrument verified <i class="bi bi-arrow-right ms-1"></i></button>
+  </div>
+
+  <div id="alertStrip"></div>
+  <div class="row g-3 mb-4" id="kpis"></div>
+
+  <ul class="nav seg-tabs" role="tablist">
+    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#t-instruments" type="button"><i class="bi bi-speedometer2"></i>Instruments</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#t-applications" type="button" id="appsTab"><i class="bi bi-list-check"></i>Applications</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#t-certificates" type="button"><i class="bi bi-patch-check"></i>Certificates</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#t-businesses" type="button"><i class="bi bi-shop"></i>Businesses</button></li>
+  </ul>
+
+  <div class="tab-content">
+    <div class="tab-pane fade show active" id="t-instruments"><div class="row g-3" id="instrumentCards"></div></div>
+    <div class="tab-pane fade" id="t-applications"><div class="d-flex flex-column gap-3" id="applicationList"></div></div>
+    <div class="tab-pane fade" id="t-certificates"><div class="row g-3" id="certificateCards"></div></div>
+    <div class="tab-pane fade" id="t-businesses"><div class="row g-3" id="businessCards"></div></div>
+  </div>
+</main>
+
+<!-- ================= "Get verified" step-by-step wizard ================= -->
+<div class="modal fade" id="wizModal" tabindex="-1" aria-labelledby="wizTitle" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable modal-fullscreen-md-down">
+    <div class="modal-content overflow-hidden">
+      <div class="wz-head">
+        <div class="d-flex justify-content-between align-items-center gap-2">
+          <div>
+            <div class="small-caps" id="wzCounter"></div>
+            <h2 class="h5 fw-bold mb-0" id="wizTitle">Get your instrument verified</h2>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="wz-steps" id="wzSteps"></div>
+      </div>
+
+      <div class="modal-body wz-body" id="wzPanels">
+        <!-- Step 1: premises -->
+        <section class="wz-panel" data-step="0">
+          <h3>Where is the instrument used?</h3>
+          <p class="lead-sm">Choose your shop or petrol pump. The officer will visit this address.</p>
+          <div class="row g-2" id="wzBusinesses"></div>
+          <form id="wzBizForm" class="row g-3 mt-2 d-none reveal" novalidate>
+            <div class="col-md-6"><label class="form-label" for="bName">Business name</label>
+              <input class="form-control" id="bName" name="name" required placeholder="e.g. Sri Murugan Stores"></div>
+            <div class="col-md-6"><label class="form-label" for="bDistrict">District</label>
+              <select class="form-select" id="bDistrict" name="jurisdictionId" required></select></div>
+            <div class="col-12"><label class="form-label" for="bAddress">Address</label>
+              <input class="form-control" id="bAddress" name="address" placeholder="Door no., street, area"></div>
+            <div class="col-md-8">
+              <button class="btn btn-soft w-100" type="button" id="useLocation"><i class="bi bi-geo-alt me-1"></i> Use my current location</button>
+              <div class="small text-muted mt-1">Stand inside the shop and tap this. It helps confirm the officer really visited.</div>
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+              <input class="form-control" id="bLat" name="lat" type="number" step="any" placeholder="Latitude" aria-label="Latitude">
+              <input class="form-control" id="bLng" name="lng" type="number" step="any" placeholder="Longitude" aria-label="Longitude">
+            </div>
+          </form>
+        </section>
+
+        <!-- Step 2: instrument -->
+        <section class="wz-panel" data-step="1">
+          <h3>Which instrument?</h3>
+          <p class="lead-sm">Pick an instrument you have registered, or add a new one.</p>
+          <div class="row g-2" id="wzInstruments"></div>
+          <div id="wzNewInst" class="d-none reveal mt-3">
+            <div class="form-label">What kind of instrument is it?</div>
+            <div class="type-grid mb-3" id="wzTypes"></div>
+            <form id="wzInstForm" class="row g-3" novalidate>
+              <div class="col-md-4"><label class="form-label" for="inSerial">Serial number</label>
+                <input class="form-control" id="inSerial" name="serialNo" required placeholder="Printed on the name plate"></div>
+              <div class="col-md-4"><label class="form-label" for="inMake">Make</label>
+                <input class="form-control" id="inMake" name="make" placeholder="e.g. Essae"></div>
+              <div class="col-md-4"><label class="form-label" for="inModel">Model</label>
+                <input class="form-control" id="inModel" name="model"></div>
+              <div class="col-6 col-md-3"><label class="form-label" for="inMin">Min capacity</label>
+                <div class="input-group"><input class="form-control" id="inMin" name="capacityMin" type="number" step="any" min="0"><span class="input-group-text unit"></span></div></div>
+              <div class="col-6 col-md-3"><label class="form-label" for="inMax">Max capacity</label>
+                <div class="input-group"><input class="form-control" id="inMax" name="capacityMax" type="number" step="any" min="0"><span class="input-group-text unit"></span></div></div>
+              <div class="col-6 col-md-3" id="eBox"><label class="form-label" for="inE">Interval (e)</label>
+                <div class="input-group"><input class="form-control" id="inE" name="eValue" type="number" step="any" min="0"><span class="input-group-text unit"></span></div></div>
+              <div class="col-6 col-md-3"><label class="form-label" for="inInstall">Installation</label>
+                <select class="form-select" id="inInstall" name="installationType">
+                  <option value="PORTABLE">Portable</option><option value="FIXED">Fixed</option></select></div>
+              <div class="col-12"><label class="form-label" for="inApproval">Model approval no. (optional)</label>
+                <input class="form-control" id="inApproval" name="modelApprovalNo"></div>
+            </form>
+          </div>
+        </section>
+
+        <!-- Step 3: documents -->
+        <section class="wz-panel" data-step="2">
+          <h3>Add supporting documents</h3>
+          <p class="lead-sm">Optional, but it speeds up verification. Photos from your phone camera work too.</p>
+          <div class="row g-3">
+            <div class="col-md-5">
+              <label class="form-label" for="docLabel">Document type</label>
+              <select class="form-select mb-3" id="docLabel">
+                <option>Model approval certificate</option><option>Purchase invoice</option>
+                <option>Repair certificate</option><option>Previous verification certificate</option><option>Other</option>
+              </select>
+              <label class="dropzone" id="dropzone" for="docFile">
+                <span class="ibub lg navy"><i class="bi bi-cloud-arrow-up"></i></span>
+                <div class="fw-bold">Drop files here or tap to choose</div>
+                <div class="small text-muted">PDF, JPG or PNG · max 5 MB each</div>
+              </label>
+              <input class="d-none" type="file" id="docFile" multiple accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png">
+            </div>
+            <div class="col-md-7">
+              <div class="form-label">Attached to this instrument</div>
+              <div class="d-flex flex-column gap-2" id="wzUploads"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Step 4: review -->
+        <section class="wz-panel" data-step="3">
+          <h3>Review and submit</h3>
+          <p class="lead-sm">Check the details. You can go back and change anything.</p>
+          <div class="row g-4">
+            <div class="col-lg-7">
+              <div class="card p-3" id="wzReview"></div>
+              <label class="confirm-box mt-3" for="wzConfirm">
+                <input class="form-check-input" type="checkbox" id="wzConfirm">
+                <span class="small">I confirm these details are correct and the instrument will be available for inspection at this address.</span>
+              </label>
+            </div>
+            <div class="col-lg-5">
+              <div class="fee-box mb-3">
+                <div class="small opacity-75">Verification fee</div>
+                <div class="amt" id="wzFee" data-no-i18n></div>
+                <div class="small opacity-75 mt-1" id="wzValidity"></div>
+              </div>
+              <div class="small-caps mb-2">What happens next</div>
+              <ul class="next-steps">
+                <li><i class="bi bi-diagram-3"></i><b>An officer is assigned</b><div class="small text-muted">Automatically, from your district</div></li>
+                <li><i class="bi bi-calendar-event"></i><b>Inspection at your premises</b><div class="small text-muted">You get an alert with the date</div></li>
+                <li><i class="bi bi-qr-code"></i><b>Certificate with QR</b><div class="small text-muted">On your phone, right after a pass</div></li>
+                <li><i class="bi bi-bell"></i><b>Reminders before expiry</b><div class="small text-muted">30, 15 and 7 days before</div></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- Step 5: done -->
+        <section class="wz-panel" data-step="4">
+          <div class="success" id="wzDone"></div>
+        </section>
+      </div>
+
+      <div class="wz-foot">
+        <button class="btn btn-soft" type="button" id="wzBack"><i class="bi bi-arrow-left me-1"></i> Back</button>
+        <span class="hint d-none d-sm-inline" id="wzHint"></span>
+        <button class="btn btn-lm px-4" type="button" id="wzNext">Continue <i class="bi bi-arrow-right ms-1"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Instrument documents (from an instrument card) -->
+<div class="modal fade" id="docsModal" tabindex="-1" aria-labelledby="docsTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content">
+    <div class="modal-header"><h2 class="modal-title h5 fw-bold" id="docsTitle"><i class="bi bi-folder2-open me-2"></i><span>Documents</span> · <span id="docsSerial" data-no-i18n></span></h2>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body">
+      <form id="docForm" class="row g-2 align-items-end mb-3 p-3 rounded" style="background:var(--ink-3)">
+        <div class="col-md-4"><label class="form-label" for="docLabel2">Document type</label>
+          <select class="form-select" id="docLabel2" name="label">
+            <option>Model approval certificate</option><option>Purchase invoice</option>
+            <option>Repair certificate</option><option>Previous verification certificate</option><option>Other</option>
+          </select></div>
+        <div class="col-md-5"><label class="form-label" for="docFile2">File (PDF, JPG or PNG, max 5 MB)</label>
+          <input class="form-control" type="file" id="docFile2" name="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" required></div>
+        <div class="col-md-3"><button class="btn btn-lm w-100" type="submit"><i class="bi bi-upload me-1"></i> Upload</button></div>
+      </form>
+      <div id="docList" class="d-flex flex-column gap-2"></div>
+      <p class="small text-muted mt-3 mb-0"><i class="bi bi-shield-lock"></i> Only you, the assigned officer and the state Controller can open these files.</p>
+    </div>
+  </div></div>
+</div>
+
+<script src="/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/wizard.js"></script>
+<script src="/js/owner.js"></script>
+</body>
+</html>

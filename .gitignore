@@ -1,0 +1,16 @@
+target/
+.tmp/
+*.log
+
+# Certificate signing private key - NEVER commit.
+keys/
+# Inspection photos
+uploads/
+
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+.factorypath
