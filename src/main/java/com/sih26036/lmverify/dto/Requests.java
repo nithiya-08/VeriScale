@@ -22,7 +22,15 @@ public final class Requests {
             @NotBlank @Size(min = 8, message = "must be at least 8 characters") String password) {
     }
 
-    public record Login(@NotBlank String email, @NotBlank String password) {
+    public record VerifyEmail(@NotBlank @Email String email,
+                              @NotBlank @Pattern(regexp = "^\\d{6}$", message = "must be 6 digits") String code) {
+    }
+
+    public record ResendCode(@NotBlank @Email String email) {
+    }
+
+    /** role is what the user chose under "Login as"; optional so API clients can omit it. */
+    public record Login(@NotBlank String email, @NotBlank String password, User.Role role) {
     }
 
     public record CreateBusiness(

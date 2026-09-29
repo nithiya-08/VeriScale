@@ -20,7 +20,7 @@ public class OpenApiConfig {
     public OpenAPI lmVerifyOpenApi() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("LM Verify API")
+                        .title("VeriScale API")
                         .version("1.0.0")
                         .description("""
                                 SIH26036 - Online Verification System for Weighing and Measuring Instruments.

@@ -1,6 +1,6 @@
 {
-  "name": "LM Verify - Field Inspection",
-  "short_name": "LM Verify",
+  "name": "VeriScale - Field Inspection",
+  "short_name": "VeriScale",
   "description": "Legal Metrology online verification: offline field inspection for LMOs and GATCs.",
   "start_url": "/officer.html",
   "scope": "/",

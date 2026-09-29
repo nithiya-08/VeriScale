@@ -1,9 +1,10 @@
 <!doctype html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en" data-bs-theme="dark" translate="no" class="notranslate">
 <head>
   <meta charset="utf-8">
+  <meta name="google" content="notranslate">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Verify Certificate - Legal Metrology</title>
+  <title>Verify Certificate - VeriScale</title>
   <meta name="theme-color" content="#0D1526">
   <link rel="icon" href="/icons/icon-192.png">
   <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
@@ -97,7 +98,7 @@
         ${row('Make / Model', [r.make, r.model].filter(Boolean).join(' / '), i++)}
         ${row('Business', r.businessName, i++)}
         ${row('Location', [r.district, r.state].filter(Boolean).join(', '), i++)}
-        ${row('Issued on', fmtDate(r.issuedAt), i++)}
+        ${row('Valid from', fmtDate(r.issuedAt), i++)}
         ${row('Valid until', fmtDate(r.validUntil), i++)}
       </div>`;
     // REVOKED keeps the server text because it carries the reason ("This certificate was revoked: ...").

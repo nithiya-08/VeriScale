@@ -63,8 +63,10 @@ public class CertificateService {
         payload.put("certNo", certNo);
         payload.put("instrumentSerial", instrument.getSerialNo());
         payload.put("instrumentType", instrument.getType().getName());
+        payload.put("ownerName", instrument.getBusiness().getOwner().getName());
         payload.put("businessName", instrument.getBusiness().getName());
         payload.put("issuedAt", issuedAt.toString());
+        payload.put("validFrom", issuedAt.atZone(ZONE).toLocalDate().toString());
         payload.put("validUntil", validUntil.toString());
         payload.put("issuer", issuer);
         String payloadJson;

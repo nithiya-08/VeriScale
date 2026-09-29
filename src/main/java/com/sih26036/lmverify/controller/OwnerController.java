@@ -36,6 +36,17 @@ public class OwnerController {
         return ownerService.createBusiness(currentUser.get(), req);
     }
 
+    @PutMapping("/businesses/{id}")
+    public Views.BusinessView updateBusiness(@PathVariable Long id, @Valid @RequestBody Requests.CreateBusiness req) {
+        return ownerService.updateBusiness(currentUser.get(), id, req);
+    }
+
+    /** Only premises with no instruments. */
+    @DeleteMapping("/businesses/{id}")
+    public void deleteBusiness(@PathVariable Long id) {
+        ownerService.deleteBusiness(currentUser.get(), id);
+    }
+
     @GetMapping("/instruments")
     public List<Views.InstrumentView> instruments() {
         return ownerService.instruments(currentUser.get());
@@ -44,6 +55,18 @@ public class OwnerController {
     @PostMapping("/instruments")
     public Views.InstrumentView createInstrument(@Valid @RequestBody Requests.CreateInstrument req) {
         return ownerService.createInstrument(currentUser.get(), req);
+    }
+
+    /** Locked once a certificate exists or while an application is in progress. */
+    @PutMapping("/instruments/{id}")
+    public Views.InstrumentView updateInstrument(@PathVariable Long id, @Valid @RequestBody Requests.CreateInstrument req) {
+        return ownerService.updateInstrument(currentUser.get(), id, req);
+    }
+
+    /** Only instruments never sent for verification. */
+    @DeleteMapping("/instruments/{id}")
+    public void deleteInstrument(@PathVariable Long id) {
+        ownerService.deleteInstrument(currentUser.get(), id);
     }
 
     @GetMapping("/applications")

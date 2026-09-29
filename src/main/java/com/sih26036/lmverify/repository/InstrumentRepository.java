@@ -15,6 +15,8 @@ public interface InstrumentRepository extends JpaRepository<Instrument, Long> {
 
     boolean existsBySerialNoIgnoreCase(String serialNo);
 
+    boolean existsByBusiness(Business business);
+
     @Query("""
             select i from Instrument i join i.business b join b.owner o join b.jurisdiction j
             where j.state = :state and (

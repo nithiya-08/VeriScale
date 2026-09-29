@@ -1,7 +1,7 @@
 // Service worker: caches the app shell so the field inspection screen opens with no network.
 // Pages and assets: network-first (so updates arrive), falling back to cache when offline.
 // API calls are never cached here; offline data lives in IndexedDB (js/idb.js).
-const CACHE = 'lm-shell-v7';
+const CACHE = 'lm-shell-v14';
 const SHELL = [
   '/officer.html', '/index.html', '/login.html', '/verify.html', '/owner.html',
   '/css/app.css', '/css/wizard.css', '/css/landing.css', '/js/i18n.js', '/js/wizard.js', '/js/api.js', '/js/idb.js', '/js/errorcalc.js', '/js/officer.js', '/js/owner.js',

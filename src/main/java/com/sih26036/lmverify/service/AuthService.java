@@ -19,25 +19,6 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-    private final AuditService auditService;
-
-    /** Public self-registration is for instrument owners only; officers are created by the state admin. */
-    @Transactional
-    public Views.LoginResponse registerOwner(Requests.Register req) {
-        String email = req.email().trim().toLowerCase();
-        if (userRepository.existsByEmailIgnoreCase(email)) {
-            throw ApiException.conflict("An account with this email already exists");
-        }
-        User u = userRepository.save(User.builder()
-                .name(req.name().trim())
-                .email(email)
-                .phone(req.phone())
-                .passwordHash(passwordEncoder.encode(req.password()))
-                .role(User.Role.OWNER)
-                .build());
-        auditService.log(u, "User", u.getId(), "REGISTERED", null, "OWNER");
-        return new Views.LoginResponse(jwtService.issue(u), Views.UserView.of(u));
-    }
 
     @Transactional(readOnly = true)
     public Views.LoginResponse login(Requests.Login req) {
@@ -47,7 +28,21 @@ public class AuthService {
         if (!u.isActive()) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "Account is disabled");
         }
+        // Checked only after the password matched, so it cannot be used to probe which emails exist.
+        if (req.role() != null && req.role() != u.getRole()) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "This account is not registered as " + roleLabel(req.role()));
+        }
         return new Views.LoginResponse(jwtService.issue(u), Views.UserView.of(u));
+    }
+
+    /** Same labels as the "Login as" choice on the login page (translated there). */
+    private static String roleLabel(User.Role role) {
+        return switch (role) {
+            case OWNER -> "Owner";
+            case LMO -> "Officer (LMO)";
+            case GATC -> "Test centre (GATC)";
+            case STATE_ADMIN -> "Admin";
+        };
     }
 
     @Transactional(readOnly = true)

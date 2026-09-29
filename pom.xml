@@ -14,7 +14,7 @@
     <groupId>com.sih26036</groupId>
     <artifactId>lm-verify</artifactId>
     <version>1.0.0</version>
-    <name>LM Verify</name>
+    <name>VeriScale</name>
     <description>SIH26036 - Online Verification System for Weighing and Measuring Instruments</description>
 
     <properties>

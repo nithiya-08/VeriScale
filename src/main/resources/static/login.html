@@ -1,9 +1,10 @@
 <!doctype html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en" data-bs-theme="dark" translate="no" class="notranslate">
 <head>
   <meta charset="utf-8">
+  <meta name="google" content="notranslate">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Login - LM Verify</title>
+  <title>Login - VeriScale</title>
   <meta name="theme-color" content="#0D1526">
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="/icons/icon-192.png">
@@ -20,7 +21,7 @@
   <aside class="auth-brand">
     <a class="auth-home" href="/index.html"><i class="bi bi-arrow-left"></i> <span>Back to home</span></a>
     <div class="auth-brand-inner fade-up">
-      <span class="brand-mark lg"><i class="bi bi-shield-check"></i></span>
+      <div class="d-flex align-items-center gap-3"><span class="brand-mark lg"><i class="bi bi-shield-check"></i></span><span class="auth-name">VeriScale<span class="brand-sub">Verify · Certify · Trust</span></span></div>
       <h1 class="mt-4">Every scale honest.<br><span class="accent">Every certificate provable.</span></h1>
       <ul class="auth-points">
         <li><i class="bi bi-wifi-off"></i><span>Works offline in the field</span></li>
@@ -29,14 +30,14 @@
         <li><i class="bi bi-translate"></i><span>8 Indian languages</span></li>
       </ul>
     </div>
-    <div class="auth-foot small">SIH26036 prototype · Legal Metrology Act, 2009</div>
+    <div class="auth-foot small">Legal Metrology Act, 2009</div>
   </aside>
 
   <!-- Form side -->
   <main class="auth-main">
     <div class="auth-top">
       <a class="navbar-brand d-flex align-items-center gap-2 d-lg-none" href="/index.html">
-        <span class="brand-mark"><i class="bi bi-shield-check"></i></span><span class="fw-bold">LM Verify</span></a>
+        <span class="brand-mark"><i class="bi bi-shield-check"></i></span><span class="fw-bold">VeriScale</span></a>
       <div class="ms-auto" id="langPicker"></div>
     </div>
 
@@ -52,6 +53,17 @@
       <div class="tab-content">
         <div class="tab-pane fade show active" id="tab-login">
           <form id="loginForm">
+            <div class="form-label" id="roleLabel">Login as</div>
+            <div class="role-pick mb-4" role="radiogroup" aria-labelledby="roleLabel">
+              <label class="role-opt"><input type="radio" name="loginRole" value="OWNER" checked>
+                <span><i class="bi bi-shop"></i><b>Owner</b></span></label>
+              <label class="role-opt"><input type="radio" name="loginRole" value="LMO">
+                <span><i class="bi bi-person-badge"></i><b>Officer (LMO)</b></span></label>
+              <label class="role-opt"><input type="radio" name="loginRole" value="GATC">
+                <span><i class="bi bi-building-check"></i><b>Test centre (GATC)</b></span></label>
+              <label class="role-opt"><input type="radio" name="loginRole" value="STATE_ADMIN">
+                <span><i class="bi bi-bank"></i><b>Admin</b></span></label>
+            </div>
             <div class="mb-3">
               <label class="form-label" for="loginEmail">Email</label>
               <input class="form-control form-control-lg" id="loginEmail" name="email" type="email" required autocomplete="username" placeholder="you@example.com">
@@ -65,9 +77,6 @@
             </div>
             <button class="btn btn-lm btn-lg w-100" type="submit">Login <i class="bi bi-arrow-right ms-1"></i></button>
           </form>
-
-          <div class="auth-divider"><span>Try a demo account</span></div>
-          <div class="row g-2" id="demoAccounts"></div>
         </div>
 
         <div class="tab-pane fade" id="tab-register">
@@ -91,6 +100,34 @@
             <button class="btn btn-lm btn-lg w-100" type="submit">Create owner account</button>
             <p class="small text-muted mt-3 mb-0"><i class="bi bi-info-circle"></i> Officers and GATCs are added by the state Controller.</p>
           </form>
+
+          <!-- Step 2: email verification -->
+          <form id="otpForm" class="d-none otp-step" novalidate>
+            <div class="text-center mb-3">
+              <span class="ibub lg gold mb-2"><i class="bi bi-envelope-check"></i></span>
+              <h3 class="h5 fw-bold mb-1">Verify your email</h3>
+              <p class="text-muted small mb-0"><span>We sent a 6-digit code to</span> <b class="text-light" id="otpEmail" data-no-i18n></b></p>
+            </div>
+            <div class="alert-strip mb-3 d-none" id="demoCodeBox">
+              <i class="bi bi-info-circle"></i>
+              <div class="small"><b>Demo mode:</b> <span>Email is not set up on this server, so your code is shown here:</span>
+                <b class="fs-5 ms-1" id="demoCode" data-no-i18n></b></div>
+            </div>
+            <div class="otp-boxes mb-2" id="otpBoxes" role="group" aria-label="Verification code">
+              <input inputmode="numeric" maxlength="6" autocomplete="one-time-code" aria-label="Digit 1">
+              <input inputmode="numeric" maxlength="6" aria-label="Digit 2">
+              <input inputmode="numeric" maxlength="6" aria-label="Digit 3">
+              <input inputmode="numeric" maxlength="6" aria-label="Digit 4">
+              <input inputmode="numeric" maxlength="6" aria-label="Digit 5">
+              <input inputmode="numeric" maxlength="6" aria-label="Digit 6">
+            </div>
+            <div class="text-center small text-muted mb-3" id="otpTimer"></div>
+            <button class="btn btn-lm btn-lg w-100" type="submit">Verify and create account</button>
+            <div class="d-flex justify-content-between mt-3 small">
+              <button class="btn btn-link p-0" type="button" id="changeEmail"><i class="bi bi-arrow-left"></i> Change email</button>
+              <button class="btn btn-link p-0" type="button" id="resendBtn" disabled>Resend code</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -111,21 +148,18 @@
   // Open "Register" directly when coming from /login.html#register.
   if (location.hash === '#register') bootstrap.Tab.getOrCreateInstance(document.getElementById('registerTab')).show();
 
-  // Demo logins; matches DataSeeder. Remove for production.
-  const DEMO = [
-    ['Owner', 'owner@lm.demo', 'bi-shop'], ['LMO Chennai', 'lmo.chennai@lm.demo', 'bi-person-badge'],
-    ['GATC Chennai', 'gatc.chennai@lm.demo', 'bi-building-check'], ['State admin', 'admin@lm.demo', 'bi-bank'],
-  ];
-  const demoBox = document.getElementById('demoAccounts');
-  demoBox.innerHTML = DEMO.map(([label, email, icon]) => `
-    <div class="col-6"><button type="button" class="role-chip" data-email="${email}">
-      <span class="ibub sm navy"><i class="bi ${icon}"></i></span>${label}</button></div>`).join('');
-  demoBox.addEventListener('click', ev => {
-    const chip = ev.target.closest('.role-chip');
-    if (!chip) return;
-    demoBox.querySelectorAll('.role-chip').forEach(c => c.classList.toggle('active', c === chip));
-    document.getElementById('loginEmail').value = chip.dataset.email;
-    document.getElementById('loginPassword').value = 'Demo@123';
+  // "Login as": remember the last choice on this device (a convenience only; the server checks the role).
+  const form = document.getElementById('loginForm');
+  try {
+    const last = localStorage.getItem('lm_login_role');
+    const opt = last && form.querySelector(`input[name="loginRole"][value="${last}"]`);
+    if (opt) opt.checked = true;
+  } catch (e) { /* storage blocked */ }
+  form.addEventListener('change', ev => {
+    if (ev.target.name === 'loginRole') {
+      try { localStorage.setItem('lm_login_role', ev.target.value); } catch (e) { /* ignore */ }
+      document.getElementById('loginEmail').focus();
+    }
   });
 
   document.getElementById('togglePw').onclick = ev => {
@@ -135,17 +169,105 @@
     ev.currentTarget.innerHTML = `<i class="bi ${show ? 'bi-eye-slash' : 'bi-eye'}"></i>`;
   };
 
-  onSubmit(document.getElementById('loginForm'), async fd => {
-    const res = await API.call('/api/auth/login', { method: 'POST', body: Object.fromEntries(fd), redirectOn401: false });
+  onSubmit(form, async fd => {
+    const res = await API.call('/api/auth/login', {
+      method: 'POST', redirectOn401: false,
+      body: { email: fd.get('email'), password: fd.get('password'), role: fd.get('loginRole') },
+    });
     API.save(res);
     location.href = homeFor(res.user.role);
   });
 
-  onSubmit(document.getElementById('registerForm'), async fd => {
-    const res = await API.call('/api/auth/register', { method: 'POST', body: Object.fromEntries(fd) });
-    API.save(res);
-    location.href = homeFor(res.user.role);
+  // ---------- Owner sign-up with email verification ----------
+  const regForm = document.getElementById('registerForm');
+  const otpForm = document.getElementById('otpForm');
+  const boxes = [...document.querySelectorAll('#otpBoxes input')];
+  let pendingEmail = null, expiresAt = 0, resendAt = 0, timer = null;
+
+  function showOtpStep(r) {
+    pendingEmail = r.email;
+    expiresAt = Date.now() + r.expiresInSeconds * 1000;
+    resendAt = Date.now() + r.resendAfterSeconds * 1000;
+    document.getElementById('otpEmail').textContent = r.email;
+    document.getElementById('demoCodeBox').classList.toggle('d-none', !r.demoCode);
+    document.getElementById('demoCode').textContent = r.demoCode || '';
+    regForm.classList.add('d-none');
+    otpForm.classList.remove('d-none');
+    boxes.forEach(b => { b.value = ''; b.classList.remove('bad'); });
+    boxes[0].focus();
+    clearInterval(timer);
+    timer = setInterval(tick, 1000);
+    tick();
+  }
+
+  function tick() {
+    const left = Math.max(0, Math.round((expiresAt - Date.now()) / 1000));
+    const resendIn = Math.max(0, Math.round((resendAt - Date.now()) / 1000));
+    document.getElementById('otpTimer').textContent = left > 0
+      ? t('Code expires in {m}:{s}', { m: Math.floor(left / 60), s: String(left % 60).padStart(2, '0') })
+      : t('The code has expired. Tap Resend code.');
+    const rb = document.getElementById('resendBtn');
+    rb.disabled = resendIn > 0;
+    rb.textContent = resendIn > 0 ? t('Resend code in {n}s', { n: resendIn }) : t('Resend code');
+  }
+
+  // Digit boxes: type to advance, backspace to go back, paste a whole code.
+  boxes.forEach((b, i) => {
+    b.addEventListener('input', () => {
+      // Several digits at once (fast typing or phone code autofill) spread over the next boxes.
+      const digits = b.value.replace(/\D/g, '').slice(0, boxes.length - i);
+      b.value = '';
+      digits.split('').forEach((d, k) => { boxes[i + k].value = d; boxes[i + k].classList.remove('bad'); });
+      if (digits) (boxes[i + digits.length] || boxes[boxes.length - 1]).focus();
+      if (boxes.every(x => x.value)) otpForm.requestSubmit();
+    });
+    b.addEventListener('keydown', e => { if (e.key === 'Backspace' && !b.value && i > 0) boxes[i - 1].focus(); });
+    b.addEventListener('paste', e => {
+      const digits = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6);
+      if (!digits) return;
+      e.preventDefault();
+      digits.split('').forEach((d, k) => { if (boxes[k]) boxes[k].value = d; });
+      (boxes[digits.length] || boxes[5]).focus();
+      if (digits.length === 6) otpForm.requestSubmit();
+    });
   });
+
+  onSubmit(regForm, async fd => {
+    showOtpStep(await API.call('/api/auth/register', { method: 'POST', body: Object.fromEntries(fd) }));
+    toast(t('Verification code sent'), 'info');
+  });
+
+  onSubmit(otpForm, async () => {
+    const code = boxes.map(b => b.value).join('');
+    if (code.length !== 6) { toast(t('Enter the 6-digit code'), 'warning'); return; }
+    try {
+      const res = await API.call('/api/auth/register/verify', { method: 'POST', body: { email: pendingEmail, code }, redirectOn401: false });
+      clearInterval(timer);
+      API.save(res);
+      toast(t('Email verified. Welcome!'));
+      location.href = homeFor(res.user.role);
+    } catch (e) {
+      boxes.forEach(b => b.classList.add('bad'));
+      otpForm.querySelector('.otp-boxes').animate([{ transform: 'translateX(-6px)' }, { transform: 'translateX(6px)' }, { transform: 'none' }], { duration: 300 });
+      boxes.forEach(b => { b.value = ''; });
+      boxes[0].focus();
+      throw e;
+    }
+  });
+
+  document.getElementById('resendBtn').onclick = ev => withBusy(ev.currentTarget, async () => {
+    try {
+      showOtpStep(await API.call('/api/auth/register/resend', { method: 'POST', body: { email: pendingEmail } }));
+      toast(t('A new code has been sent'), 'info');
+    } catch (e) { toast(t(e.message), 'danger'); }
+  }).then(tick);
+
+  document.getElementById('changeEmail').onclick = () => {
+    clearInterval(timer);
+    otpForm.classList.add('d-none');
+    regForm.classList.remove('d-none');
+    document.getElementById('regEmail').focus();
+  };
 </script>
 </body>
 </html>

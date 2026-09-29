@@ -162,3 +162,35 @@
   .reveal-on-scroll { opacity: 1; transform: none; }
   .lp-verdict .c, .lp-verdict .p { stroke-dashoffset: 0; }
 }
+
+/* Product name next to the logo on the login brand panel */
+.auth-name { color: var(--paper); font-weight: 800; font-size: 1.5rem; line-height: 1.1; }
+
+/* "Login as" role picker (radio cards) */
+.role-pick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+.role-opt { position: relative; cursor: pointer; margin: 0; }
+.role-opt input { position: absolute; opacity: 0; pointer-events: none; }
+.role-opt span {
+  display: flex; align-items: center; gap: .6rem; padding: .75rem .85rem; border-radius: 12px; height: 100%;
+  background: var(--ink-3); border: 2px solid var(--line); color: var(--paper-80); font-size: .88rem;
+  transition: border-color .2s, background .2s, color .2s, transform .15s var(--ease-out);
+}
+.role-opt span i { font-size: 1.15rem; color: var(--muted); transition: color .2s; }
+.role-opt:hover span { border-color: var(--line-strong); }
+.role-opt input:checked + span { border-color: var(--gold); background: var(--gold-soft); color: var(--paper); }
+.role-opt input:checked + span i { color: var(--gold); }
+.role-opt input:focus-visible + span { box-shadow: 0 0 0 .2rem rgba(231, 169, 76, .3); }
+.role-opt:active span { transform: scale(.98); }
+
+/* Email verification code boxes */
+.otp-step { animation: wzIn .45s var(--ease-out) both; }
+.otp-boxes { display: flex; justify-content: center; gap: .55rem; }
+.otp-boxes input {
+  width: 50px; height: 58px; text-align: center; font-size: 1.5rem; font-weight: 800; border-radius: 12px;
+  background: var(--ink-3); border: 2px solid var(--line); color: var(--paper); caret-color: var(--gold);
+  transition: border-color .2s, box-shadow .2s, transform .15s var(--ease-out);
+}
+.otp-boxes input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 .2rem rgba(231, 169, 76, .2); transform: translateY(-2px); }
+.otp-boxes input.bad { border-color: var(--coral); }
+@keyframes wzIn { from { opacity: 0; transform: translateX(36px); } to { opacity: 1; transform: none; } }
+@media (max-width: 400px) { .otp-boxes input { width: 42px; height: 52px; font-size: 1.3rem; } .otp-boxes { gap: .4rem; } }

@@ -1,4 +1,4 @@
-# LM Verify: SIH26036
+# VeriScale: Digital Legal Metrology Verification (SIH26036)
 
 **Online Verification System for Weighing and Measuring Instruments**
 Ministry of Consumer Affairs, Food & Public Distribution, Department of Consumer Affairs (Legal Metrology)
@@ -165,7 +165,8 @@ P-256 · Spring `@Scheduled` · Spring Mail. No JSP, because server-rendered pag
 ## API outline
 
 ```
-POST /api/auth/register | /api/auth/login        GET /api/me
+PUT|DELETE /api/businesses/{id} | /api/instruments/{id} (owner fixes)
+POST /api/auth/register | /register/verify | /register/resend (email code) | /api/auth/login        GET /api/me
 GET/POST /api/businesses, /api/instruments        GET/POST /api/applications
 GET  /api/officer/assignments/today               POST /api/sync/inspections
 GET  /api/certificates/{certNo} | /pdf | /qr.png  GET /api/public/verify?c=&s=

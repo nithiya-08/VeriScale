@@ -25,6 +25,14 @@ public final class Views {
     public record LoginResponse(String token, UserView user) {
     }
 
+    /**
+     * Owner sign-up step 1 result. demoCode is filled only in the demo profile when email is not
+     * configured, so the flow can be shown without a mail server.
+     */
+    public record RegistrationStarted(String email, long expiresInSeconds, long resendAfterSeconds,
+                                      boolean emailSent, String demoCode) {
+    }
+
     public record JurisdictionView(Long id, String state, String district) {
         public static JurisdictionView of(Jurisdiction j) {
             return new JurisdictionView(j.getId(), j.getState(), j.getDistrict());

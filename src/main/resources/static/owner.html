@@ -1,9 +1,10 @@
 <!doctype html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en" data-bs-theme="dark" translate="no" class="notranslate">
 <head>
   <meta charset="utf-8">
+  <meta name="google" content="notranslate">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>My Instruments - LM Verify</title>
+  <title>My Instruments - VeriScale</title>
   <meta name="theme-color" content="#0D1526">
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="/icons/icon-192.png">
@@ -17,7 +18,7 @@
 <nav class="navbar app-nav sticky-top" style="height:64px">
   <div class="container">
     <span class="navbar-brand"><span class="brand-mark"><i class="bi bi-shield-check"></i></span>
-      <span>LM Verify<span class="brand-sub">Instrument owner</span></span></span>
+      <span>VeriScale<span class="brand-sub">Instrument owner</span></span></span>
     <div class="d-flex align-items-center gap-2">
       <div id="langPicker"></div>
       <div class="dropdown">
@@ -229,6 +230,46 @@
       </form>
       <div id="docList" class="d-flex flex-column gap-2"></div>
       <p class="small text-muted mt-3 mb-0"><i class="bi bi-shield-lock"></i> Only you, the assigned officer and the state Controller can open these files.</p>
+    </div>
+  </div></div>
+</div>
+
+<!-- View details of premises / instrument -->
+<div class="modal fade stack-modal" id="viewModal" tabindex="-1" aria-labelledby="viewTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content">
+    <div class="modal-header"><h2 class="modal-title h5 fw-bold d-flex align-items-center gap-2" id="viewTitle"></h2>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body" id="viewBody"></div>
+    <div class="modal-footer justify-content-between" id="viewFoot"></div>
+  </div></div>
+</div>
+
+<!-- Edit premises / instrument -->
+<div class="modal fade stack-modal" id="editModal" tabindex="-1" aria-labelledby="editTitle" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+    <form class="modal-content" id="editForm" novalidate>
+      <div class="modal-header"><h2 class="modal-title h5 fw-bold" id="editTitle"></h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><div class="row g-3" id="editBody"></div></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-soft" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-lm px-4"><i class="bi bi-check2 me-1"></i> Save changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Confirm delete -->
+<div class="modal fade stack-modal" id="confirmModal" tabindex="-1" aria-labelledby="confirmTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content">
+    <div class="modal-body text-center p-4">
+      <span class="ibub lg bad mb-3"><i class="bi bi-trash3"></i></span>
+      <h2 class="h5 fw-bold" id="confirmTitle"></h2>
+      <p class="small text-muted mb-0" id="confirmText"></p>
+    </div>
+    <div class="modal-footer justify-content-center">
+      <button type="button" class="btn btn-soft" data-bs-dismiss="modal">Cancel</button>
+      <button type="button" class="btn btn-danger px-4" id="confirmOk"><i class="bi bi-trash3 me-1"></i> Delete</button>
     </div>
   </div></div>
 </div>

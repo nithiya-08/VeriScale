@@ -135,9 +135,12 @@ function renderInstruments() {
       <div class="meta" data-no-i18n><i class="bi bi-shop me-1"></i>${esc(i.businessName)} · ${esc(i.district)}
         ${i.make ? `<br><i class="bi bi-tag me-1"></i>${esc([i.make, i.model].filter(Boolean).join(' '))}` : ''}</div>
       <div>${validityMeter(cert, i.type)}</div>
-      <div class="mt-auto d-flex gap-2">
-        <div class="flex-grow-1">${action}</div>
-        <button class="btn btn-sm btn-soft" type="button" data-docs="${i.id}" data-serial="${esc(i.serialNo)}" title="Documents" aria-label="Documents"><i class="bi bi-folder2-open"></i></button>
+      <div class="mt-auto">
+        <div class="card-acts mb-2">
+          ${actButtons('inst', i.id, true)}
+          <button class="act" type="button" data-docs="${i.id}" data-serial="${esc(i.serialNo)}"><i class="bi bi-folder2-open"></i><span>Documents</span></button>
+        </div>
+        ${action}
       </div>
     </div></div>`;
   }).join('');
@@ -198,6 +201,7 @@ function renderCertificates() {
           <div class="fw-bold" data-no-i18n>${esc(c.certNo)}</div>
           <div class="small text-muted text-truncate"><span>${esc(c.instrumentType)}</span> · <span data-no-i18n>${esc(c.serialNo)}</span></div>
           <div class="my-2">${badge(c.status)}</div>
+          <div class="small fw-semibold mb-1"><i class="bi bi-calendar-range"></i> ${esc(t('Valid {from} to {to}', { from: fmtDate(c.issuedAt), to: fmtDate(c.validUntil) }))}</div>
           <div class="small">${note}</div>
           <div class="d-flex gap-2 mt-2">
             <button class="btn btn-sm btn-lm" type="button" data-pdf="${esc(c.certNo)}"><i class="bi bi-file-earmark-pdf"></i> PDF</button>
@@ -228,6 +232,7 @@ function renderBusinesses() {
       <div class="d-flex gap-3"><span class="ibub gold"><i class="bi bi-shop"></i></span>
         <div data-no-i18n><div class="fw-bold">${esc(b.name)}</div><div class="small text-muted">${esc(b.address || '')}${b.address ? ', ' : ''}${esc(b.district)}</div></div></div>
       <div class="d-flex justify-content-between align-items-center mt-3"><span class="small"><i class="bi bi-speedometer2"></i> ${esc(plural(count, '{n} instrument', '{n} instruments'))}</span>${map}</div>
+      <div class="card-acts mt-3 pt-2 border-top">${actButtons('biz', b.id, true)}</div>
     </div></div>`;
   }).join('');
 }
@@ -298,10 +303,11 @@ function setNextLabel(i) {
 // ---------- step 1: premises ----------
 function renderBizStep() {
   $('wzBusinesses').innerHTML = state.businesses.map((b, n) => `
-    <div class="col-md-6"><button type="button" class="choice fade-up ${!wz.addingBiz && wz.businessId === b.id ? 'selected' : ''}" style="--i:${n}" data-biz="${b.id}">
+    <div class="col-md-6"><div role="button" tabindex="0" class="choice has-acts fade-up ${!wz.addingBiz && wz.businessId === b.id ? 'selected' : ''}" style="--i:${n}" data-biz="${b.id}">
       <span class="ibub gold"><i class="bi bi-shop"></i></span>
-      <span class="min-w-0" data-no-i18n><span class="d-block fw-bold">${esc(b.name)}</span><span class="d-block small text-muted text-truncate">${esc(b.address || '')}${b.address ? ', ' : ''}${esc(b.district)}</span></span>
-      <span class="tick"><i class="bi bi-check"></i></span></button></div>`).join('') + `
+      <span class="min-w-0 flex-grow-1" data-no-i18n><span class="d-block fw-bold text-truncate">${esc(b.name)}</span><span class="d-block small text-muted text-truncate">${esc(b.address || '')}${b.address ? ', ' : ''}${esc(b.district)}</span></span>
+      <span class="choice-acts">${actButtons('biz', b.id)}</span>
+      <span class="tick"><i class="bi bi-check"></i></span></div></div>`).join('') + `
     <div class="col-md-6"><button type="button" class="choice add fade-up ${wz.addingBiz ? 'selected' : ''}" style="--i:${state.businesses.length}" data-biz="new">
       <i class="bi bi-plus-circle fs-5"></i> ${esc(t('Add new premises'))}</button></div>`;
   $('wzBizForm').classList.toggle('d-none', !wz.addingBiz);
@@ -309,7 +315,7 @@ function renderBizStep() {
 
 $('wzBusinesses').addEventListener('click', ev => {
   const c = ev.target.closest('[data-biz]');
-  if (!c) return;
+  if (!c || ev.target.closest('[data-act]')) return;
   wz.addingBiz = c.dataset.biz === 'new';
   wz.businessId = wz.addingBiz ? null : Number(c.dataset.biz);
   if (wz.businessId !== (state.instruments.find(i => i.id === wz.instrumentId) || {}).businessId) wz.instrumentId = null;
@@ -331,12 +337,13 @@ function renderInstStep() {
     const cert = latestCert(i.id);
     const sub = busy ? t('Already in progress') : cert ? (cert.status === 'VALID'
       ? plural(daysUntil(cert.validUntil), 'Valid · {n} day left', 'Valid · {n} days left') : t('Needs re-verification')) : t('Never certified');
-    return `<div class="col-md-6"><button type="button" class="choice fade-up ${busy ? 'disabled' : ''} ${!wz.addingInst && wz.instrumentId === i.id ? 'selected' : ''}"
+    return `<div class="col-md-6"><div role="button" tabindex="0" class="choice has-acts fade-up ${busy ? 'disabled' : ''} ${!wz.addingInst && wz.instrumentId === i.id ? 'selected' : ''}"
         style="--i:${n}" data-inst="${i.id}" ${busy ? 'aria-disabled="true"' : ''}>
       <span class="ibub navy"><i class="bi ${typeIcon(i.type.name)}"></i></span>
-      <span class="min-w-0"><span class="d-block fw-bold" data-no-i18n>${esc(i.serialNo)}</span>
+      <span class="min-w-0 flex-grow-1"><span class="d-block fw-bold text-truncate" data-no-i18n>${esc(i.serialNo)}</span>
         <span class="d-block small">${esc(i.type.name)}</span><span class="d-block small text-muted">${esc(sub)}</span></span>
-      <span class="tick"><i class="bi bi-check"></i></span></button></div>`;
+      <span class="choice-acts">${actButtons('inst', i.id)}</span>
+      <span class="tick"><i class="bi bi-check"></i></span></div></div>`;
   }).join('') + `
     <div class="col-md-6"><button type="button" class="choice add fade-up ${wz.addingInst ? 'selected' : ''}" style="--i:${list.length}" data-inst="new">
       <i class="bi bi-plus-circle fs-5"></i> ${esc(t('Register a new instrument'))}</button></div>`;
@@ -364,7 +371,7 @@ function applyTypeFields() {
 
 $('wzInstruments').addEventListener('click', ev => {
   const c = ev.target.closest('[data-inst]');
-  if (!c || c.classList.contains('disabled')) return;
+  if (!c || c.classList.contains('disabled') || ev.target.closest('[data-act]')) return;
   wz.addingInst = c.dataset.inst === 'new';
   wz.instrumentId = wz.addingInst ? null : Number(c.dataset.inst);
   renderInstStep();
@@ -626,6 +633,226 @@ onSubmit($('docForm'), async fd => {
   toast(t('Document uploaded'));
   loadDocs();
 });
+
+// =====================================================================
+// View / edit / delete premises and instruments (to fix mistakes)
+// =====================================================================
+function actButtons(kind, id, labels = false) {
+  const b = (act, icon, text, cls = '') => `<button class="act ${cls}" type="button" data-act="${act}" data-kind="${kind}" data-id="${id}"
+    title="${esc(t(text))}" aria-label="${esc(t(text))}"><i class="bi ${icon}"></i>${labels ? `<span>${esc(t(text))}</span>` : ''}</button>`;
+  return b('view', 'bi-eye', 'View') + b('edit', 'bi-pencil', 'Edit') + b('delete', 'bi-trash3', 'Delete', 'danger');
+}
+
+/** Same rules as the server, so the owner gets the reason before trying. */
+function bizLock(b) {
+  const list = state.instruments.filter(i => i.businessId === b.id);
+  return {
+    edit: list.some(i => isBusy(i.id)) ? 'An inspection is in progress at these premises. You can edit them after it is finished.' : null,
+    del: list.length ? 'Remove the instruments at these premises first' : null,
+  };
+}
+
+function instLock(i) {
+  return {
+    edit: isBusy(i.id) ? 'This instrument has an application in progress, so it cannot be changed now'
+      : latestCert(i.id) ? 'This instrument already has a certificate, so its details are locked. Contact the Legal Metrology office to correct them.' : null,
+    del: latestApp(i.id) ? 'This instrument has verification records, so it cannot be deleted' : null,
+  };
+}
+
+const viewModal = new bootstrap.Modal($('viewModal'));
+const editModal = new bootstrap.Modal($('editModal'));
+const confirmModal = new bootstrap.Modal($('confirmModal'));
+let editing = null;
+
+document.addEventListener('click', ev => {
+  const a = ev.target.closest('[data-act]');
+  if (!a) return;
+  ev.preventDefault();
+  const id = Number(a.dataset.id);
+  const item = a.dataset.kind === 'biz' ? state.businesses.find(x => x.id === id) : state.instruments.find(x => x.id === id);
+  if (!item) return;
+  const act = a.dataset.act;
+  if (act === 'view') return a.dataset.kind === 'biz' ? viewBiz(item) : viewInst(item);
+  if ($('viewModal').classList.contains('show')) viewModal.hide();
+  const lock = a.dataset.kind === 'biz' ? bizLock(item) : instLock(item);
+  const reason = act === 'edit' ? lock.edit : lock.del;
+  if (reason) return toast(t(reason), 'warning');
+  if (act === 'edit') return a.dataset.kind === 'biz' ? editBiz(item) : editInst(item);
+  return a.dataset.kind === 'biz' ? deleteBiz(item) : deleteInst(item);
+});
+
+// Keyboard support for the selectable cards (they hold buttons, so they are not <button>s).
+document.addEventListener('keydown', ev => {
+  const c = ev.target;
+  if ((ev.key === 'Enter' || ev.key === ' ') && c.classList?.contains('choice') && c.getAttribute('role') === 'button') {
+    ev.preventDefault();
+    c.click();
+  }
+});
+
+const kv = (k, v, raw = false) => v == null || v === '' ? ''
+  : `<div class="kv-row"><div class="k">${esc(t(k))}</div><div class="v" ${raw ? '' : 'data-no-i18n'}>${raw ? v : esc(v)}</div></div>`;
+
+function viewFooter(kind, item, lock) {
+  const btn = (act, icon, text, cls) => `<button class="btn ${cls}" type="button" data-act="${act}" data-kind="${kind}" data-id="${item.id}"
+    ${lock[act === 'edit' ? 'edit' : 'del'] ? 'aria-disabled="true"' : ''}><i class="bi ${icon} me-1"></i>${esc(t(text))}</button>`;
+  return btn('delete', 'bi-trash3', 'Delete', 'btn-outline-danger') + btn('edit', 'bi-pencil', 'Edit', 'btn-lm px-4');
+}
+
+function lockNote(lock) {
+  const notes = [lock.edit, lock.del].filter(Boolean);
+  return notes.length ? `<div class="alert-strip mt-3 mb-0"><i class="bi bi-lock"></i><div class="small">${notes.map(n => esc(t(n))).join('<br>')}</div></div>` : '';
+}
+
+function viewBiz(b) {
+  const list = state.instruments.filter(i => i.businessId === b.id);
+  const lock = bizLock(b);
+  $('viewTitle').innerHTML = `<span class="ibub sm gold"><i class="bi bi-shop"></i></span><span data-no-i18n>${esc(b.name)}</span>`;
+  $('viewBody').innerHTML = `<div class="kv">
+      ${kv('Business name', b.name)}
+      ${kv('Address', b.address)}
+      ${kv('District', `${b.district}, ${b.state}`)}
+      ${kv('Location', b.lat != null ? `<a href="https://www.openstreetmap.org/?mlat=${b.lat}&mlon=${b.lng}#map=17/${b.lat}/${b.lng}" target="_blank" rel="noopener">${esc(b.lat.toFixed(5))}, ${esc(b.lng.toFixed(5))} <i class="bi bi-box-arrow-up-right"></i></a>` : esc(t('Location not set')), true)}
+    </div>
+    <div class="small-caps mt-3 mb-2">${esc(plural(list.length, '{n} instrument', '{n} instruments'))}</div>
+    ${list.map(i => `<div class="d-flex align-items-center gap-2 py-2 border-bottom">
+        <i class="bi ${typeIcon(i.type.name)}"></i><span class="fw-semibold" data-no-i18n>${esc(i.serialNo)}</span>
+        <span class="small text-muted">${esc(i.type.name)}</span><span class="ms-auto">${latestApp(i.id) ? badge(latestApp(i.id).status) : ''}</span></div>`).join('')
+      || `<div class="small text-muted">${esc(t('No instruments here yet'))}</div>`}
+    ${lockNote(lock)}`;
+  $('viewFoot').innerHTML = viewFooter('biz', b, lock);
+  viewModal.show();
+}
+
+async function viewInst(i) {
+  const app = latestApp(i.id), cert = latestCert(i.id), lock = instLock(i), u = i.type.unit;
+  const cap = [i.capacityMin, i.capacityMax].some(x => x != null) ? `${i.capacityMin ?? '-'} – ${i.capacityMax ?? '-'} ${u}` : '';
+  $('viewTitle').innerHTML = `<span class="ibub sm navy"><i class="bi ${typeIcon(i.type.name)}"></i></span><span data-no-i18n>${esc(i.serialNo)}</span>`;
+  $('viewBody').innerHTML = `<div class="kv">
+      ${kv('Instrument type', `<span>${esc(i.type.name)}</span>`, true)}
+      ${kv('Serial number', i.serialNo)}
+      ${kv('Make', [i.make, i.model].filter(Boolean).join(' '))}
+      ${kv('Capacity', cap)}
+      ${kv('Interval (e)', i.eValue != null ? `${i.eValue} ${u}` : '')}
+      ${kv('Installation', `<span>${esc(i.installationType === 'FIXED' ? 'Fixed' : 'Portable')}</span>`, true)}
+      ${kv('Model approval no.', i.modelApprovalNo)}
+      ${kv('Premises', `${i.businessName} · ${i.district}`)}
+      ${kv('Status', app ? badge(app.status) : `<span class="pill neutral"><i class="bi bi-circle"></i>${esc(t('Not applied'))}</span>`, true)}
+      ${kv('Certificate', cert ? `<span data-no-i18n>${esc(cert.certNo)}</span><div class="small text-muted">${esc(t('Valid {from} to {to}', { from: fmtDate(cert.issuedAt), to: fmtDate(cert.validUntil) }))}</div>` : '', true)}
+      <div id="viewDocs"></div>
+    </div>${lockNote(lock)}`;
+  $('viewFoot').innerHTML = viewFooter('inst', i, lock);
+  viewModal.show();
+  try {
+    const docs = await API.call(`/api/instruments/${i.id}/documents`);
+    $('viewDocs').outerHTML = kv('Documents', `<span>${esc(plural(docs.length, '{n} file attached', '{n} files attached'))}</span>`, true);
+  } catch (e) { /* the count is optional */ }
+}
+
+const field = (col, id, label, input) => `<div class="${col}"><label class="form-label" for="${id}">${esc(t(label))}</label>${input}</div>`;
+const val = v => v == null ? '' : esc(v);
+
+function editBiz(b) {
+  editing = { kind: 'biz', id: b.id };
+  $('editTitle').innerHTML = `<i class="bi bi-pencil-square me-2"></i>${esc(t('Edit premises'))}`;
+  $('editBody').innerHTML =
+    field('col-md-6', 'eName', 'Business name', `<input class="form-control" id="eName" name="name" required value="${val(b.name)}">`) +
+    field('col-md-6', 'eDistrict', 'District', `<select class="form-select" id="eDistrict" name="jurisdictionId" required>${state.districts.map(d =>
+      `<option value="${d.id}" ${d.id === b.jurisdictionId ? 'selected' : ''} data-no-i18n>${esc(d.district)}, ${esc(d.state)}</option>`).join('')}</select>`) +
+    field('col-12', 'eAddress', 'Address', `<input class="form-control" id="eAddress" name="address" value="${val(b.address)}">`) +
+    field('col-6', 'eLat', 'Latitude', `<input class="form-control" id="eLat" name="lat" type="number" step="any" value="${val(b.lat)}">`) +
+    field('col-6', 'eLng', 'Longitude', `<input class="form-control" id="eLng" name="lng" type="number" step="any" value="${val(b.lng)}">`);
+  editModal.show();
+}
+
+function editInst(i) {
+  editing = { kind: 'inst', id: i.id };
+  $('editTitle').innerHTML = `<i class="bi bi-pencil-square me-2"></i>${esc(t('Edit instrument'))}`;
+  $('editBody').innerHTML =
+    field('col-md-6', 'eBiz', 'Premises', `<select class="form-select" id="eBiz" name="businessId" required>${state.businesses.map(b =>
+      `<option value="${b.id}" ${b.id === i.businessId ? 'selected' : ''} data-no-i18n>${esc(b.name)} · ${esc(b.district)}</option>`).join('')}</select>`) +
+    field('col-md-6', 'eType', 'Instrument type', `<select class="form-select" id="eType" name="typeId" required>${state.types.map(x =>
+      `<option value="${x.id}" ${x.id === i.type.id ? 'selected' : ''}>${esc(t(x.name))}</option>`).join('')}</select>`) +
+    field('col-md-4', 'eSerial', 'Serial number', `<input class="form-control" id="eSerial" name="serialNo" required value="${val(i.serialNo)}">`) +
+    field('col-md-4', 'eMake', 'Make', `<input class="form-control" id="eMake" name="make" value="${val(i.make)}">`) +
+    field('col-md-4', 'eModel', 'Model', `<input class="form-control" id="eModel" name="model" value="${val(i.model)}">`) +
+    field('col-6 col-md-3', 'eMin', 'Min capacity', `<div class="input-group"><input class="form-control" id="eMin" name="capacityMin" type="number" step="any" min="0" value="${val(i.capacityMin)}"><span class="input-group-text unit"></span></div>`) +
+    field('col-6 col-md-3', 'eMax', 'Max capacity', `<div class="input-group"><input class="form-control" id="eMax" name="capacityMax" type="number" step="any" min="0" value="${val(i.capacityMax)}"><span class="input-group-text unit"></span></div>`) +
+    `<div class="col-6 col-md-3" id="eEBox">${field('', 'eE', 'Interval (e)', `<div class="input-group"><input class="form-control" id="eE" name="eValue" type="number" step="any" min="0" value="${val(i.eValue)}"><span class="input-group-text unit"></span></div>`)}</div>` +
+    field('col-6 col-md-3', 'eInstall', 'Installation', `<select class="form-select" id="eInstall" name="installationType">
+      <option value="PORTABLE">${esc(t('Portable'))}</option><option value="FIXED" ${i.installationType === 'FIXED' ? 'selected' : ''}>${esc(t('Fixed'))}</option></select>`) +
+    field('col-12', 'eApproval', 'Model approval no. (optional)', `<input class="form-control" id="eApproval" name="modelApprovalNo" value="${val(i.modelApprovalNo)}">`);
+  const syncType = () => {
+    const x = state.types.find(y => y.id === Number($('eType').value));
+    const weighing = x.errorModel === 'OIML_R76';
+    $('eEBox').style.display = weighing ? '' : 'none';
+    $('eE').required = weighing;
+    $('editBody').querySelectorAll('.unit').forEach(s => { s.textContent = x.unit; });
+  };
+  $('eType').onchange = syncType;
+  syncType();
+  editModal.show();
+}
+
+onSubmit($('editForm'), async fd => {
+  if (!$('editForm').reportValidity()) return;
+  if (editing.kind === 'biz') {
+    await API.call(`/api/businesses/${editing.id}`, { method: 'PUT', body: {
+      name: fd.get('name'), address: fd.get('address'), jurisdictionId: Number(fd.get('jurisdictionId')),
+      lat: numOrNull(fd.get('lat')), lng: numOrNull(fd.get('lng')) } });
+  } else {
+    const x = state.types.find(y => y.id === Number(fd.get('typeId')));
+    await API.call(`/api/instruments/${editing.id}`, { method: 'PUT', body: {
+      businessId: Number(fd.get('businessId')), typeId: x.id, serialNo: fd.get('serialNo'), make: fd.get('make'), model: fd.get('model'),
+      capacityMin: numOrNull(fd.get('capacityMin')), capacityMax: numOrNull(fd.get('capacityMax')),
+      eValue: x.errorModel === 'OIML_R76' ? numOrNull(fd.get('eValue')) : null,
+      modelApprovalNo: fd.get('modelApprovalNo'), installationType: fd.get('installationType') } });
+  }
+  editModal.hide();
+  toast(t('Changes saved'));
+  await refreshAfterChange();
+});
+
+/** Resolves true when the owner confirms. */
+function askConfirm(title, text) {
+  $('confirmTitle').textContent = title;
+  $('confirmText').textContent = text;
+  return new Promise(resolve => {
+    let ok = false;
+    $('confirmOk').onclick = () => { ok = true; confirmModal.hide(); };
+    $('confirmModal').addEventListener('hidden.bs.modal', () => resolve(ok), { once: true });
+    confirmModal.show();
+  });
+}
+
+async function deleteBiz(b) {
+  if (!await askConfirm(t('Delete these premises?'), t('{name} will be removed. This cannot be undone.', { name: b.name }))) return;
+  try {
+    await API.call(`/api/businesses/${b.id}`, { method: 'DELETE' });
+    if (wz.businessId === b.id) wz.businessId = null;
+    toast(t('Premises deleted'));
+    await refreshAfterChange();
+  } catch (e) { toast(t(e.message), 'danger'); }
+}
+
+async function deleteInst(i) {
+  if (!await askConfirm(t('Delete this instrument?'), t('{name} and its documents will be removed. This cannot be undone.', { name: i.serialNo }))) return;
+  try {
+    await API.call(`/api/instruments/${i.id}`, { method: 'DELETE' });
+    if (wz.instrumentId === i.id) wz.instrumentId = null;
+    toast(t('Instrument deleted'));
+    await refreshAfterChange();
+  } catch (e) { toast(t(e.message), 'danger'); }
+}
+
+async function refreshAfterChange() {
+  await load();
+  if ($('wizModal').classList.contains('show') && wizard.current < 2) {
+    if (!state.businesses.length) wz.addingBiz = true;
+    goStep(wizard.current);
+  }
+}
 
 $('bellBtn').addEventListener('shown.bs.dropdown', async () => {
   if (state.notifications.some(n => !n.read)) {

@@ -45,6 +45,13 @@ app:
     key-dir: ${SIGNING_KEY_DIR:./keys}
   uploads:
     dir: ${UPLOADS_DIR:./uploads}
+  # Owner sign-up email verification (6-digit code).
+  otp:
+    expiry-minutes: 10
+    max-attempts: 5
+    resend-cooldown-seconds: 30
+    # Shows the code on screen when email is not configured. Demo profile only - keep false in production.
+    expose-code: false
   allocation:
     max-inspections-per-day: 8
   alerts:

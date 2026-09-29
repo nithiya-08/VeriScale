@@ -1,5 +1,5 @@
 /* =========================================================================
-   LM Verify design system - dark theme
+   VeriScale design system - dark theme
    Palette: layered navy backgrounds, warm off-white text, gold accent,
    teal = success, coral = error.
    Tokens -> base -> components -> page parts -> animation -> reduced motion
@@ -511,3 +511,22 @@ h1, h2, h3, .h1, .h2, .h3 { letter-spacing: -.01em; color: var(--paper); }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; animation-delay: 0ms !important; transition-duration: .01ms !important; }
   .vmark .c, .vmark .p { stroke-dashoffset: 0; }
 }
+
+/* ---------- View / edit / delete actions on owner cards ---------- */
+.act {
+  display: inline-flex; align-items: center; justify-content: center; gap: .35rem; min-width: 34px; height: 34px; padding: 0 .55rem;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--ink-2); color: var(--muted); font-size: .8rem; font-weight: 600;
+  cursor: pointer; transition: color .15s, border-color .15s, background .15s, transform .15s var(--ease-out);
+}
+.act:hover, .act:focus-visible { color: var(--gold); border-color: var(--gold); background: var(--gold-soft); transform: translateY(-1px); outline: none; }
+.act.danger:hover, .act.danger:focus-visible { color: var(--coral); border-color: var(--coral); background: rgba(226, 112, 79, .12); }
+.card-acts { display: flex; flex-wrap: wrap; gap: .4rem; }
+.card-acts .act { flex: 1 1 auto; }
+.kv-row { display: grid; grid-template-columns: minmax(110px, 38%) 1fr; gap: .75rem; padding: .55rem 0; border-bottom: 1px solid var(--line); }
+.kv-row:last-child { border-bottom: 0; }
+.kv-row .k { color: var(--muted); font-size: .85rem; }
+.kv-row .v { font-weight: 600; overflow-wrap: anywhere; }
+[aria-disabled="true"].btn { opacity: .55; }
+/* Dialogs opened on top of the "Get verified" wizard */
+.stack-modal { z-index: 1065; }
+.modal-backdrop + .modal-backdrop { z-index: 1060; }

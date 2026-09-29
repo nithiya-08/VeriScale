@@ -14,4 +14,8 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     List<Application> findByInstrumentOrderBySubmittedAtDesc(Instrument instrument);
 
     boolean existsByInstrumentAndStatusIn(Instrument instrument, Collection<Application.Status> statuses);
+
+    boolean existsByInstrument(Instrument instrument);
+
+    boolean existsByInstrument_BusinessAndStatusIn(Business business, Collection<Application.Status> statuses);
 }

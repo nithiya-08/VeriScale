@@ -1,4 +1,4 @@
-# LM Verify: Demo Guide (SIH26036)
+# VeriScale: Demo Guide (SIH26036)
 
 Everything needed to run and present the prototype.
 
@@ -35,7 +35,21 @@ Wait for `Started LmVerifyApplication` (about 20 s), then open **http://localhos
 
 ## 3. Demo accounts
 
-Password for **all** accounts: `Demo@123` (the login page also has one-tap demo buttons).
+Password for **all** accounts: `Demo@123`.
+
+On the login page, first choose **Login as** (Owner / Officer (LMO) / Test centre (GATC) / Admin), then type the email and password.
+If the choice does not match the account (e.g. **Admin** with an owner email), login is refused with a clear message.
+
+**New owner sign-up checks the email.** Register → a 6-digit code is emailed → enter it → the account is created.
+The code expires after 10 minutes, allows 5 wrong tries, and can be resent after 30 seconds.
+No account exists until the code is verified. In the demo (no mail server) the code is shown on screen in a
+"Demo mode" box; set `GMAIL_USERNAME` / `GMAIL_APP_PASSWORD` to send real emails instead.
+
+**Fixing mistakes.** Every premises and instrument card (and each choice in the "Get verified" wizard) has
+**View / Edit / Delete**. The rules protect official records:
+premises can be edited unless an inspection is in progress there, and deleted only when they have no instruments;
+an instrument can be edited until it gets a certificate (and not while an application is open), and deleted only
+if it was never sent for verification. Every change is written to the audit log.
 
 | Role | Email | Name | District |
 |---|---|---|---|
@@ -69,7 +83,7 @@ Password for **all** accounts: `Demo@123` (the login page also has one-tap demo 
 2. Tap the **language button** and switch to **தமிழ்** or **हिन्दी**: the whole app changes. Switch back.
 
 ### Step 2: Owner applies step by step (1.5 min)
-1. **Login**, then **Owner** demo button.
+1. **Login** → **Login as: Owner** → `owner@lm.demo` / `Demo@123`.
 2. Point out the **"Action needed"** banner (expired counter machine) and the KPI tiles.
 3. Tap **Get an instrument verified**:
    Premises, then **Register a new instrument** (pick a type card, e.g. Beam scale, serial `BS-CH-7001`),
@@ -77,7 +91,7 @@ Password for **all** accounts: `Demo@123` (the login page also has one-tap demo 
 4. Success screen: the officer is auto-assigned by district and workload.
 
 ### Step 3: Officer inspects offline (2 min): the headline moment
-1. Log out and log in as **LMO Chennai**. The assignments are downloaded to the phone.
+1. Log out, then **Login as: Officer (LMO)** → `lmo.chennai@lm.demo` / `Demo@123`. The assignments are downloaded to the phone.
 2. **Turn Wi-Fi / network off** (on a phone: airplane mode). The "Offline" banner appears.
 3. Open **Sri Murugan Stores (ES-CH-1001)**:
    * **Arrive**: GPS captured, name-plate check.
@@ -94,7 +108,7 @@ Password for **all** accounts: `Demo@123` (the login page also has one-tap demo 
 4. Tamper test: change one character after `&s=` in a real QR link; it also shows **Not genuine**.
 
 ### Step 5: Controller dashboard (1 min)
-1. Log in as **State admin**.
+1. **Login as: Admin** → `admin@lm.demo` / `Demo@123`.
 2. Dashboard: KPIs, district-wise chart, officer workload with pass rate.
 3. **Applications**, then **Auto-assign** Kovai Fresh Mart (ES-CB-5001), assigned to A. Deepa (Coimbatore).
 4. **Fraud flags**: F1 "GPS far from business" on FD-CH-2003, then **View inspection**, then **Reviewed**.

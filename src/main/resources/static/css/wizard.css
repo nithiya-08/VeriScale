@@ -56,6 +56,9 @@
 .choice.disabled { opacity: .5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
 .choice.add { border-style: dashed; border-color: var(--line-strong); color: var(--gold); justify-content: center; font-weight: 700; min-height: 74px; background: transparent; }
 .choice.add:hover, .choice.add.selected { background: var(--gold-soft); border-color: var(--gold); }
+.choice.has-acts { padding-right: 2.4rem; }
+.choice-acts { display: flex; gap: .3rem; flex-shrink: 0; margin-left: auto; }
+.choice.disabled .choice-acts { cursor: default; }
 .type-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .6rem; }
 .type-card { flex-direction: column; text-align: center; padding: .9rem .6rem; gap: .45rem; }
 .type-card .ibub { margin: 0 auto; }

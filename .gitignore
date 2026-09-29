@@ -14,3 +14,6 @@ uploads/
 .project
 .settings/
 .factorypath
+
+# Local assistant settings
+.claude/

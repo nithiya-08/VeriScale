@@ -13,3 +13,8 @@ spring:
     console:
       enabled: true
       path: /h2-console
+
+# Demo only: with no mail server, show the sign-up verification code on screen.
+app:
+  otp:
+    expose-code: true
